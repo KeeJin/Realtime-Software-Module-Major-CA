@@ -17,6 +17,11 @@ FILE *fp; //load & save
 pthread_t arrow_input_thread_ID;
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
+pthread_t app_tui_thread_ID;
 
+int switch0_value(int switch_value);
+int switch1_value(int switch_value);
+int switch2_value(int switch_value);
+int switch3_value(int switch_value);
 
 #endif /* __HARDWARE_INPUT_H */
