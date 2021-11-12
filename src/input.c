@@ -15,18 +15,6 @@
 #include "PCI_init.h"
 #include "waveform.h"     
 
-uint16_t readpotentiometer1;
-uint16_t readpotentiometer2;
-char ch =0;
-float lower_limit;
-float upper_limit;
-float increment;
-
-pthread_t arrow_input_thread_ID;
-pthread_t hardware_input_thread_ID;
-pthread_t waveform_thread_ID;
-
-int beeper;
 
 /*
 #if PCI
@@ -103,7 +91,7 @@ int switch1_value(int switch_value) //funciton to read 2nd switch --> mute beepe
 	 if(switch_value) beeper = 1;
 	 else beeper = 0;
 }
-
+/* Moved to main.c
 void *arrow_input_thread(void *arg) // thread to change vertical offset using up & down arrow keys 
 {
 		while(1)
@@ -124,7 +112,7 @@ void *arrow_input_thread(void *arg) // thread to change vertical offset using up
 		}
 		
 }
-
+*/
 void *hardware_input_thread(void *arg) // thread for digital I/O and potentiometer
 {
     
@@ -175,8 +163,16 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
 		if (switch0!=switch0_prev)
         {
         	//kill ncurses input as well
+            fp = fopen("prev_wave.txt","w");
+            fprintf(fp,"%d\n",wave_type);
+            fprintf(fp,"%f\n",amplitude);
+            fprintf(fp,"%f\n",period);
+            fprintf(fp,"%f\n",vert_offset);
+            fprintf(fp,"%d\n",duty_cycle);
+            fclose(fp);
+            
         	pthread_cancel(arrow_input_thread_ID);
-        	wave_type = 0;
+        	wave_type = 4;
         	delay(period*100);
 			pthread_cancel(waveform_thread_ID);
 			#if PCI
