@@ -1,5 +1,5 @@
 # Simple script to automate compilation and execution
-# echo "INFO: This script assumes that you have cloned the repository in your home directory."
+echo "INFO: This script assumes that you have cloned the repository in your home directory."
 echo "Compiling..."
 src_dir=$(dirname "${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}")
 
