@@ -12,8 +12,18 @@ WINDOW* win_description;
 WINDOW* win_feedback;
 WINDOW* win_toggle;
 
+int i;
+int j;
+int k;
 int win_wave_plot_height, win_wave_plot_width;
-
+int cached_y_max, cached_x_max, y_max, x_max;
+int win_panel_height, win_panel_width;
+int x_padding, y_padding, key;
+int graph_types_toggle_index = 0;
+const char* graph_types_toggle[4];
+  int points_len = 100;
+  float amplitude = 1;
+  float freq = 1.5;
 typedef struct _coordinate {
   int x;
   int y;
@@ -25,10 +35,11 @@ typedef enum _graphType {
   SAWTOOTH = 3
 } GraphType;
 
+  GraphType graph_type;
 // Datapoint generation
 Coordinate* GenerateCoordinates(GraphType type, int point_size, float amplitude,
                                 float freq);
-
+Coordinate* points;
 // Drawing functions
 void DrawAxes();
 void DrawPoint(int point_x, int point_y);
@@ -42,14 +53,10 @@ int main(void) {
   initscr(); /* Start curses mode */
   noecho();
   curs_set(0);
-  keypad(stdscr, true);
+  keypad(stdscr, 1);
 #endif
 
-  int cached_y_max, cached_x_max, y_max, x_max;
-  int win_panel_height, win_panel_width;
-  int x_padding, y_padding, key;
-  int graph_types_toggle_index = 0;
-  const char* graph_types_toggle[4];
+
   graph_types_toggle[0] = "SINE";
   graph_types_toggle[1] = "SQUARE";
   graph_types_toggle[2] = "TRIANGULAR";
@@ -94,12 +101,9 @@ int main(void) {
   DrawAxes();
 #endif
 
-  int points_len = 100;
-  float amplitude = 1;
-  float freq = 1.5;
-  GraphType graph_type = SINE;
-  Coordinate* points =
-      GenerateCoordinates(graph_type, points_len, amplitude, freq);
+
+  graph_type = SINE;
+  points = GenerateCoordinates(graph_type, points_len, amplitude, freq);
   DrawPointSet(points, points_len);
 #ifndef DEBUG
   while (key != 'q') {
@@ -211,12 +215,12 @@ int main(void) {
 
 void DrawAxes() {
   // draw y axis
-  for (int i = 2; i < win_wave_plot_height - 2; i++) {
+  for (i = 2; i < win_wave_plot_height - 2; i++) {
     mvwprintw(win_wave_plot, i, 5, "|");
   }
 
   // draw x axis
-  for (int i = 2; i < win_wave_plot_width - 2; i++) {
+  for (i = 2; i < win_wave_plot_width - 2; i++) {
     if (i == 5) {
       mvwprintw(win_wave_plot, win_wave_plot_height / 2, i, "0");
     } else {
@@ -287,7 +291,7 @@ void DrawPointSet(Coordinate* target_pair, int size) {
   // printf("Width: %d, Height: %d\n", win_wave_plot_width,
   // win_wave_plot_height);
 
-  for (int i = 0; i < size; ++i) {
+  for (i = 0; i < size; ++i) {
     // printf("og x: %d, og y: %d\n", target_pair[i].x, target_pair[i].y);
     // Scale first
     int x, y;
@@ -307,7 +311,7 @@ void DrawPointSet(Coordinate* target_pair, int size) {
 
 void LocateLimits(Coordinate* target_pair, int size, int* x_lower_bound,
                   int* x_upper_bound, int* y_lower_bound, int* y_upper_bound) {
-  for (int i = 0; i < size; ++i) {
+  for ( i = 0; i < size; ++i) {
     if (target_pair[i].x > *x_upper_bound) {
       *x_upper_bound = target_pair[i].x;
     } else if (target_pair[i].x < *x_lower_bound) {
@@ -326,7 +330,7 @@ Coordinate* GenerateCoordinates(GraphType type, int point_size, float amplitude,
   Coordinate* coords = (Coordinate*)malloc(point_size * sizeof(Coordinate));
   switch (type) {
     case SINE:
-      for (int i = 0; i < point_size; ++i) {
+      for ( i = 0; i < point_size; ++i) {
         coords[i].x = i;
         coords[i].y = amplitude *
                       sin(frequency * ((double)i / point_size) * (2 * M_PI)) *
@@ -337,7 +341,7 @@ Coordinate* GenerateCoordinates(GraphType type, int point_size, float amplitude,
       int step_size;
       float x_proportion;
       step_size = (float)point_size / (float)frequency - 2;
-      for (int i = 0; i < step_size; ++i) {
+      for ( i = 0; i < step_size; ++i) {
         x_proportion = (float)i / (float)step_size;
         coords[i].x = i;
 
@@ -349,8 +353,8 @@ Coordinate* GenerateCoordinates(GraphType type, int point_size, float amplitude,
         // printf("proportion: %.3f, x: %d, y: %d\n", x_proportion,
         // coords[i].x, coords[i].y);
       }
-      int k = 0;
-      for (int j = step_size; j < (step_size + ((frequency - 1) * step_size));
+      k = 0;
+      for ( j = step_size; j < (step_size + ((frequency - 1) * step_size));
            ++j) {
         coords[j].x = j;
         coords[j].y = coords[k].y;
@@ -363,7 +367,7 @@ Coordinate* GenerateCoordinates(GraphType type, int point_size, float amplitude,
       float x_proportion;
       step_size = (float)point_size / (float)frequency - 2;
 
-      for (int i = 0; i < step_size; ++i) {
+      for (i = 0; i < step_size; ++i) {
         x_proportion = (float)i / (float)step_size;
         coords[i].x = i;
 
@@ -380,8 +384,8 @@ Coordinate* GenerateCoordinates(GraphType type, int point_size, float amplitude,
         // printf("proportion: %.3f, x: %d, y: %d\n", x_proportion,
         // coords[i].x, coords[i].y);
       }
-      int k = 0;
-      for (int j = step_size; j < (step_size + ((frequency - 1) * step_size));
+      k = 0;
+      for (j = step_size; j < (step_size + ((frequency - 1) * step_size));
            ++j) {
         coords[j].x = j;
         coords[j].y = coords[k].y;
@@ -396,14 +400,14 @@ Coordinate* GenerateCoordinates(GraphType type, int point_size, float amplitude,
       step_count = frequency * 2;
       step_size = (float)point_size / (float)step_count - 2;
 
-      for (int i = 0; i < step_size; ++i) {
+      for (i = 0; i < step_size; ++i) {
         x_proportion = (float)i / (float)step_size;
         coords[i].x = i;
         coords[i].y = 10 * (float)i * amplitude / (float)step_size;
         // printf("x: %d, y: %d\n", coords[i].x, coords[i].y);
       }
-      int k = 0;
-      for (int j = step_size; j < (step_size + ((step_count - 1) * step_size));
+      k = 0;
+      for (j = step_size; j < (step_size + ((step_count - 1) * step_size));
            ++j) {
         coords[j].x = j;
         coords[j].y = coords[k].y;
