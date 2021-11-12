@@ -11,6 +11,7 @@
 #include "PCI_init.h"
 #include "input.h"
 #include "waveform.h"
+#include "app_tui.h"
 
 
 int j;
@@ -19,11 +20,6 @@ char colon=':';
 char argument;
 char* argument_value;
 
-
-
-pthread_t arrow_input_thread_ID;
-pthread_t hardware_input_thread_ID;
-pthread_t waveform_thread_ID;
 
 
 void signal_handler( int signum)  //Ctrl+c handler
@@ -125,24 +121,31 @@ int main(int argc, char * argv[])
     
     pthread_create( &arrow_input_thread_ID, NULL, &arrow_input_thread, NULL );
     pthread_create( &hardware_input_thread_ID, NULL, &hardware_input_thread, NULL );
+    pthread_create( &app_tui_thread_ID, NULL, &app_tui_thread, NULL );
+    
     delay(100);
     pthread_create( &waveform_thread_ID, NULL, &waveform_thread, NULL );   
            
  	while(1)
  	{
-        ch = getchar();
-        if(ch==65)	
+        if(switch2_value(dio_switch))
         {
-            vert_offset+=increment;
-            if (vert_offset >= upper_limit) vert_offset = upper_limit;
-            //printf("%.2f, Up", vert_offset);
+            ch = getchar();
+            if(ch==65)	
+            {
+                vert_offset+=increment;
+                if (vert_offset >= upper_limit) vert_offset = upper_limit;
+                //printf("%.2f, Up", vert_offset);
+            }
+            if(ch==66)
+            {
+                vert_offset-=increment;
+                if (vert_offset <= lower_limit) vert_offset = lower_limit;
+                    //printf("%.2f, down", vert_offset);
+            }
         }
-        if(ch==66)
-        {
-            vert_offset-=increment;
-            if (vert_offset <= lower_limit) vert_offset = lower_limit;
-                //printf("%.2f, down", vert_offset);
-        }
+        else vert_offset = prev_vert_offset;
+
 	}
   	
   	printf("\n\nExit Program\n");
