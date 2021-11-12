@@ -6,34 +6,36 @@
 #include <unistd.h>
 
 #define DEFAULT_AMPLITUDE 0.75
-#define DEFAULT_PERIOD 0.5
-#define DEFAULT_DELAY_MULTIPLIER 150
-#define BASE_DELAY 100
+#define DEFAULT_PERIOD 1
+#define DEFAULT_DELAY_MULTIPLIER 100 //convert micro to milli
+#define BASE_DELAY 250 //time in ms
 double ratio;
 double x;
 double y;
+double repeat;
 unsigned char delayx;
 short phase_shift;
 double amplitude;
 double period;
+int wave_type = 2;
 
-
-
+/*
+int N = 50;
 
 typedef unsigned short ushort;
 
 ushort printwave(double amplitude, double period,    //draws one frame of the entire wave
     short phase_shift) {
 
-  for (x=0.0; x < (COLS+phase_shift) ; x += 1.0) {
+  for (x=0.0; x < (N+phase_shift) ; x += 1.0) {
 
    
 
     // Find Y 
-    ratio = (2.0*M_PI)/LINES;
+    ratio = (2.0*M_PI)/N;
     y = sin(period*x*ratio);
     y *= amplitude; 
-    y += LINES/2;
+    y += N/2;
     
 
     // Print cell
@@ -44,7 +46,110 @@ ushort printwave(double amplitude, double period,    //draws one frame of the en
   
 
 }
+*/
+typedef unsigned short ushort;
 
+ushort printwave(double amplitude, double period,    //draws one frame of the entire wave
+    short phase_shift) {
+
+  if(wave_type == 0) //sine
+  {
+
+  for (x=0.0; x < (COLS+phase_shift) ; x += 1.0) {
+    // Find Y 
+    ratio = (2.0*M_PI)/LINES;
+    y = sin(period*x*ratio);
+    y *= amplitude; 
+    y += LINES/2;
+
+    // Print cell
+    mvprintw((int)(y), (int)(x-phase_shift), " ");
+
+  }
+  
+  }
+  if(wave_type == 1)//square
+  {
+    for (repeat = 0; repeat < 8*period; repeat++ ) //number of cycles
+    {
+    for (x=COLS*(2*repeat)/(8*period); x < COLS*(2*repeat+1)/(8*period) ; x += 1.0) {
+      // Find Y 
+      y = amplitude/2; 
+      y += LINES/2;
+
+      // Print cell
+      mvprintw((int)(y), (int)(x-phase_shift), " ");
+
+    }
+    for (x= COLS*(2*repeat+1)/(8*period); x < COLS*(2*repeat+2)/(8*period); x += 1.0) {
+      // Find Y 
+      y = -amplitude/2; 
+      y += LINES/2;
+
+      // Print cell
+      mvprintw((int)(y), (int)(x-phase_shift), " ");
+
+    }
+    }
+  
+  }
+
+    if(wave_type == 2)//triangle
+  {
+    for (repeat = 0; repeat < 8*period; repeat++ ) //number of cycles
+    {
+    for (x=COLS*(2*repeat)/(8*period); x < COLS*(2*repeat+1)/(8*period) ; x += 1.0) {
+      // Find Y 
+
+      y = amplitude/2-amplitude/20*x*period*0.8;
+      y += LINES/2;
+
+      // Print cell
+      mvprintw((int)(y), (int)(x-phase_shift), " ");
+
+    }
+    for (x=COLS*(2*repeat)/(8*period); x < COLS*(2*repeat+1)/(8*period) ; x += 1.0) {
+      // Find Y 
+
+      y = amplitude/2;
+      y += LINES/2;
+
+      // Print cell
+      mvprintw((int)(y), (int)(x-phase_shift), " ");
+
+    }
+    for (x= COLS*(2*repeat+1)/(8*period); x < COLS*(2*repeat+2)/(8*period); x += 1.0) {
+      // Find Y 
+  
+      y = -amplitude/2;
+      y += LINES/2;
+
+
+      // Print cell
+      mvprintw((int)(y), (int)(x-phase_shift), " ");
+
+    }
+    for (x= COLS*(2*repeat+1)/(8*period); x < COLS*(2*repeat+2)/(8*period); x += 1.0) {
+      // Find Y 
+  
+      y = -amplitude/2+amplitude/20*x*period*0.8;
+      y += LINES/period;
+
+
+      // Print cell
+      mvprintw((int)(y), (int)(x-phase_shift), " ");
+
+    }
+
+    
+
+    }
+  
+  }
+
+  
+
+}
 int main(int argc, char* argv[]) {
 
   // Curses init
@@ -77,7 +182,6 @@ int main(int argc, char* argv[]) {
     erase();    //erases for new frame
 
     printwave(amplitude, period, phase_shift);    //draws a frame of the entire wave
-
     attron(COLOR_WHITE);
     mvprintw(0, 0, "PERIOD %.2f", period);
     mvprintw(1, 0, "AMP: %.2f", amplitude);
@@ -89,14 +193,17 @@ int main(int argc, char* argv[]) {
     switch (getch()) {
       case KEY_UP: 
       case 'k':
+        wave_type = 1;
         amplitude += 1.0;
         break;
       case KEY_DOWN:
       case 'j':
+        wave_type = 0;
         amplitude -= 1.0;
         break;
       case KEY_LEFT:
       case 'h':
+        wave_type = 2;
         period -= .05;
         break;
       case KEY_RIGHT:
@@ -118,11 +225,11 @@ int main(int argc, char* argv[]) {
       default: break;
     }
 
-    usleep(BASE_DELAY*delayx);
+    usleep(BASE_DELAY*DEFAULT_DELAY_MULTIPLIER);
 
     phase_shift += 1; 
 
-    if (phase_shift*period >= LINES)
+    if (phase_shift*period/1.95 >= LINES)
       phase_shift = 0;
   }
 
