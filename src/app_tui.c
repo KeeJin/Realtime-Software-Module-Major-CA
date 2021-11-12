@@ -170,13 +170,19 @@ int *app_tui_thread(void *arg) {
     if(switch2_value(dio_switch)) 
     {
       wave_type = graph_types_toggle_index;
+<<<<<<< HEAD
       freq = 1/period;
+=======
+>>>>>>> [UNTESTED] Integrated app_tui with hardware
       key = getch();
     }
     else 
     {
       wave_type = prev_wave_type;
+<<<<<<< HEAD
       freq = 1/prev_period;
+=======
+>>>>>>> [UNTESTED] Integrated app_tui with hardware
       key = ' ';
     }
   }

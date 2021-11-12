@@ -22,9 +22,14 @@ int x_padding, y_padding, key;
 int graph_types_toggle_index = 0;
 const char* graph_types_toggle[4];
   int points_len = 100;
+<<<<<<< HEAD
   //float amplitude = 1;
   //float freq = 1.5;
   float freq;
+=======
+  float amplitude = 1;
+  float freq = 1.5;
+>>>>>>> [UNTESTED] Integrated app_tui with hardware
 typedef struct _coordinate {
   int x;
   int y;
