@@ -171,18 +171,26 @@ int *app_tui_thread(void *arg) {
     {
       wave_type = graph_types_toggle_index;
 <<<<<<< HEAD
+<<<<<<< HEAD
       freq = 1/period;
 =======
 >>>>>>> [UNTESTED] Integrated app_tui with hardware
+=======
+      freq = 1/period;
+>>>>>>> [UNTESTED] Integration
       key = getch();
     }
     else 
     {
       wave_type = prev_wave_type;
 <<<<<<< HEAD
+<<<<<<< HEAD
       freq = 1/prev_period;
 =======
 >>>>>>> [UNTESTED] Integrated app_tui with hardware
+=======
+      freq = 1/prev_period;
+>>>>>>> [UNTESTED] Integration
       key = ' ';
     }
   }

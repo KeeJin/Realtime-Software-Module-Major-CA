@@ -23,6 +23,7 @@ int graph_types_toggle_index = 0;
 const char* graph_types_toggle[4];
   int points_len = 100;
 <<<<<<< HEAD
+<<<<<<< HEAD
   //float amplitude = 1;
   //float freq = 1.5;
   float freq;
@@ -30,6 +31,11 @@ const char* graph_types_toggle[4];
   float amplitude = 1;
   float freq = 1.5;
 >>>>>>> [UNTESTED] Integrated app_tui with hardware
+=======
+  //float amplitude = 1;
+  //float freq = 1.5;
+  float freq;
+>>>>>>> [UNTESTED] Integration
 typedef struct _coordinate {
   int x;
   int y;
