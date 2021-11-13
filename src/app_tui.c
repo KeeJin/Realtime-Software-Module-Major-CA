@@ -170,11 +170,13 @@ int *app_tui_thread(void *arg) {
     if(switch2_value(dio_switch)) 
     {
       wave_type = graph_types_toggle_index;
+      freq = 1/period;
       key = getch();
     }
     else 
     {
       wave_type = prev_wave_type;
+      freq = 1/prev_period;
       key = ' ';
     }
   }
