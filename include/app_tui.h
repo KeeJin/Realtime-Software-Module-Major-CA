@@ -22,8 +22,9 @@ int x_padding, y_padding, key;
 int graph_types_toggle_index = 0;
 const char* graph_types_toggle[4];
   int points_len = 100;
-  float amplitude = 1;
-  float freq = 1.5;
+  //float amplitude = 1;
+  //float freq = 1.5;
+  float freq;
 typedef struct _coordinate {
   int x;
   int y;
