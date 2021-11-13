@@ -4,6 +4,6 @@ echo "Compiling..."
 cd ../build
 
 
-cc  -I ../include/ -o explore_ncurses ../src/explore_ncurses.c -lm -lncurses
+cc  -I ../include/ -o explore_wave_ncurses ../src/explore_wave_ncurses.c -lm -lncurses
 
-./explore_ncurses
+./explore_wave_ncurses
