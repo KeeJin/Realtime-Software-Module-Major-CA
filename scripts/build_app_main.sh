@@ -4,13 +4,20 @@ echo "Compiling..."
 src_dir=$(dirname "${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}")
 
 # Check if a directory does not exist
-if [ ! -d "${src_dir}/../build" ] 
+if [ ! -d "${src_dir}/../build/bin" ] 
 then
     echo "Creating build folder..." 
-    mkdir ${src_dir}/../build
+    mkdir ${src_dir}/../build/bin
 fi
 
-cc -o ${src_dir}/../build/app_tui ${src_dir}/../app/app_tui.c -lncurses -lm
+cd ${src_dir}/../build
+
+# Compilation
+cc -I ../include/ -c ../src/terminal_ui.c
+cc -I ../include/ -c ../app/app_main.c
+
+# Linking
+cc app_main.o terminal_ui.o -o ./bin/app_main -lm -lncurses -lpthread
 echo "Compilation complete. Running executable... "
 echo "======================================================="
-${src_dir}/../build/app_tui
+./bin/app_main
