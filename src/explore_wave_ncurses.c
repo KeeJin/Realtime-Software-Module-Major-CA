@@ -17,7 +17,7 @@ unsigned char delayx;
 short phase_shift;
 double amplitude;
 double period;
-int wave_type = 2;
+int wave_type = 3;
 
 /*
 int N = 50;
@@ -92,13 +92,10 @@ ushort printwave(double amplitude, double period, //draws one frame of the entir
       }
     }
   }
-
-  //amplitude = LINES/2*0.75; //8
-  //amplitude = LINES/2*1;
-  float temp = 890;
-  temp = 16.5;
-  float temp2 = 10.45;
+  //float temp1 = 16.41;
+  //float temp2 = 4.11;
   
+
   if (wave_type == 2) //triangle
   {
     for (repeat = 0; repeat < 16 * period; repeat++) //number of cycles
@@ -107,11 +104,9 @@ ushort printwave(double amplitude, double period, //draws one frame of the entir
       {
         // Find Y
 
-        y = amplitude - amplitude / LINES / COLS * temp * x * period;
-        y = amplitude - amplitude / COLS * temp * x * period;
+        y = amplitude - amplitude / COLS * 16.41 * x * period;
         y += LINES / 2;
-        //y += (amplitude * repeat) / (6.65) * (LINES / 2);
-        y += (amplitude * repeat) / temp2 * LINES;
+        y += (amplitude * repeat) * 4.11;
 
         // Print cell
         mvprintw((int)(y), (int)(x - phase_shift), " ");
@@ -120,12 +115,10 @@ ushort printwave(double amplitude, double period, //draws one frame of the entir
       {
         // Find Y
 
-        y = -3 * amplitude + amplitude / LINES / COLS * temp * x * period;
-        y = -3 * amplitude + amplitude / COLS * temp * x * period;
+        y = -3 * amplitude + amplitude / COLS * 16.41 * x * period;
         y += LINES / 2;
         //y *= -1;
-        //y -= (amplitude * repeat) / (6.65) * (LINES / 2);
-        y -= (amplitude * repeat) / temp2 * LINES;
+        y -= (amplitude * repeat) * 4.11;
 
         // Print cell
         mvprintw((int)(y), (int)(x - phase_shift), " ");
@@ -141,9 +134,9 @@ ushort printwave(double amplitude, double period, //draws one frame of the entir
       {
         // Find Y
 
-        y = amplitude - amplitude / 12.5 * x * period;
+        y = amplitude - amplitude / COLS * 16.41 * x * period;
         y += LINES / 2;
-        y += (amplitude * repeat) / (6.65) * (LINES / 2);
+        y += (amplitude * repeat) * 4.11;
 
         // Print cell
         mvprintw((int)(y), (int)(x - phase_shift), " ");
@@ -157,9 +150,9 @@ ushort printwave(double amplitude, double period, //draws one frame of the entir
       {
         // Find Y
 
-        y = 3 * amplitude - amplitude / 12.5 * x * period;
+        y = 3 * amplitude - amplitude / COLS * 16.41 * x * period;;
         y += LINES / 2;
-        y += (amplitude * repeat) / (6.65) * (LINES / 2);
+        y += (amplitude * repeat) * 4.11;
 
         // Print cell
         mvprintw((int)(y), (int)(x - phase_shift), " ");
@@ -249,7 +242,9 @@ int main(int argc, char *argv[])
 
     phase_shift += 1;
 
-    if (phase_shift * period / 0.94 >= LINES)
+    //if (phase_shift * period / 0.94 >= LINES)
+    //if (phase_shift * period * LINES * COLS / 10261 >= LINES)
+    if (phase_shift * period >= LINES)
       phase_shift = 0;
   }
 
