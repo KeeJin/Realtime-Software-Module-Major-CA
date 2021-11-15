@@ -11,7 +11,6 @@
 #include "PCI_init.h"
 #include "input.h"
 #include "waveform.h"
-#include "terminal_ui.h"
 
 
 int j;
@@ -27,22 +26,15 @@ float increment =0.1;
 //variable for file logging
 //variables for finding the duration that the program runs
 
+pthread_t arrow_input_thread_ID;
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
-pthread_t DisplayTUI_ID;
 
 
 void signal_handler( int signum)  //Ctrl+c handler
 {
-    pthread_cancel(DisplayTUI_ID);
-    endwin();
-    system("clear");    
-    fp = fopen("savefile.txt","w");
-    fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",wave_type,amplitude,period,vert_offset,duty_cycle);
-    fclose(fp);
-    pci_detach_device(hdl);
-    printf("Ending program...\n");
-    printf("Resetting hardware...\n");
+    //kill ncurses input as well
+    pthread_cancel(arrow_input_thread_ID);
     wave_type = 4;
     delay(period*100);
 	pthread_cancel(waveform_thread_ID);
@@ -68,7 +60,10 @@ void signal_handler( int signum)  //Ctrl+c handler
     fprintf(fp,"Program runs for %lf seconds \n\n",time_elapsed);
     fclose(fp);
     
-
+    fp = fopen("savefile.txt","w");
+    fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",wave_type,amplitude,period,vert_offset,duty_cycle);
+    fclose(fp);
+    pci_detach_device(hdl);
     
     exit(EXIT_SUCCESS);                                 //exit the program
     
@@ -76,12 +71,6 @@ void signal_handler( int signum)  //Ctrl+c handler
 
 int main(int argc, char * argv[])
 {
-    pthread_t display_thread;
-    pthread_attr_t attr;
-    int rc;
-    long t;
-    void* status;
-
     //attach signal_handler to catch SIGINT
     signal(SIGINT, signal_handler);
     
@@ -92,7 +81,8 @@ int main(int argc, char * argv[])
 	
 	fp = fopen("savefile.txt","r");
 	fscanf(fp,"%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period, &prev_vert_offset, &prev_duty_cycle);
-
+	vert_offset = prev_vert_offset;
+	
     //command line argument(s)
     for(j=1;j<argc;j++)
     {
@@ -175,20 +165,7 @@ int main(int argc, char * argv[])
     fprintf(fp,"Starting program\n");
     fclose(fp);
     
-
-
-    /* ------------------- Adjustable params ------------------- */
-  //  pthread_mutex_lock(&mutex);
-    time_period_ms = 100;
-    graph_type = wave_type;
-    frequency = 1/period;
-    vertical_offset = vert_offset;
-    phase_shift = 0.0;
-    //pthread_mutex_unlock(&mutex);
-    /* ---------------------------------------------------------- */
-
-    /* ----- Initialize and set thread detached attribute ------- */
-    pthread_create(&DisplayTUI_ID, NULL, DisplayTUI, NULL);
+    pthread_create( &arrow_input_thread_ID, NULL, &arrow_input_thread, NULL );
     pthread_create( &hardware_input_thread_ID, NULL, &hardware_input_thread, NULL );
     pthread_create( &waveform_thread_ID, NULL, &waveform_thread, NULL );   
            

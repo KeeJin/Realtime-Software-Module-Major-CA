@@ -10,13 +10,15 @@
 															
 #include "PCI_init.h" 
 #include "waveform.h" 
+#include "input.h"
 
 unsigned int i;
 unsigned int data;
 int beeper;
 
 int N=50; //number of "cuts" to make wave
-int beep = 1; //to allow for only 1 beep per peak (for sine)
+int beeping = 1; //to allow for only 1 beep per peak (for sine)
+
 
 
 void sine_wave() //sine wave function
@@ -39,20 +41,20 @@ void sine_wave() //sine wave function
 
             delay((int)period);
             
-            if ((sinf((float)(i*2*3.1415/N)) >= 0.99) && beep) //beep if wave reaches max peak    
+            if ((sinf((float)(i*2*3.1415/N)) >= 0.99) && beeping) //beep if wave reaches max peak    
             {
                 //printf("%.2f", sinf((float)(i*2*3.1415/N)));
                 if(beeper) putchar(7);
                 printf("\n");
-                beep = !beep;
+                beeping = !beeping;
             }
            
-           else if ((sinf((float)(i*2*3.1415/N)) <= -0.99) && !beep)  //beep if wave reaches min peak 
+           else if ((sinf((float)(i*2*3.1415/N)) <= -0.99) && !beeping)  //beep if wave reaches min peak 
            {
             //	printf("%.2f", sinf((float)(i*2*3.1415/N)));
                 if(beeper) putchar(7);
                 printf("\n");
-                beep = !beep;
+                beeping = !beeping;
            }
 
 																																																	
@@ -203,27 +205,30 @@ void zero_signal()
 void *waveform_thread(void *arg)  //thread to generate wave based on wave parameters
 {   
     while(1)
-    {
-        switch(wave_type)
+    {   if(switch2_value(dio_switch))
         {
-            case(0):    //sine
-                sine_wave();
-                break;
-            case(1):    //square
-                square_wave();
-                break;
-            case(2):    //triangular
-                triangular_wave();
-                break;
-            case(3):    //sawtooth
-                sawtooth_wave();
-                break;
-            case(4):    //zero voltage
-                zero_signal();
-                break;
-            default:
-                printf("invalid wave type error\n");
-                break;
+            switch(wave_type)
+            {
+                case(0):    //sine
+                    sine_wave();
+                    break;
+                case(1):    //square
+                    square_wave();
+                    break;
+                case(2):    //triangular
+                    triangular_wave();
+                    break;
+                case(3):    //sawtooth
+                    sawtooth_wave();
+                    break;
+                case(4):    //zero voltage
+                    zero_signal();
+                    break;
+                default:
+                    printf("invalid wave type error\n");
+                    break;
+            }
         }
+        else wave_type = prev_wave_type;
     } 
 }
