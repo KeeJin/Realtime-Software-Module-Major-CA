@@ -11,6 +11,10 @@
 #include "PCI_init.h"
 #include "input.h"
 #include "waveform.h"
+<<<<<<< HEAD
+#include "terminal_ui.h"
+=======
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
 
 
 int j;
@@ -26,17 +30,27 @@ float increment =0.1;
 //variable for file logging
 //variables for finding the duration that the program runs
 
+<<<<<<< HEAD
+pthread_t hardware_input_thread_ID;
+pthread_t waveform_thread_ID;
+pthread_t DisplayTUI_ID;
+=======
 pthread_t arrow_input_thread_ID;
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
 
 
 void signal_handler( int signum)  //Ctrl+c handler
 {
+<<<<<<< HEAD
+<<<<<<<< HEAD:app/hardware_main.c
 <<<<<<< HEAD:app/hardware_main.c
     //kill ncurses input as well
     pthread_cancel(arrow_input_thread_ID);
 =======
+========
+>>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21:app/main.c
     pthread_cancel(DisplayTUI_ID);
     endwin();
     system("clear");    
@@ -46,7 +60,14 @@ void signal_handler( int signum)  //Ctrl+c handler
     pci_detach_device(hdl);
     printf("Ending program...\n");
     printf("Resetting hardware...\n");
+<<<<<<<< HEAD:app/hardware_main.c
 >>>>>>> save function modified. command arguments need to touch up:app/main.c
+========
+>>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21:app/main.c
+=======
+    //kill ncurses input as well
+    pthread_cancel(arrow_input_thread_ID);
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
     wave_type = 4;
     delay(period*100);
 	pthread_cancel(waveform_thread_ID);
@@ -72,10 +93,20 @@ void signal_handler( int signum)  //Ctrl+c handler
     fprintf(fp,"Program runs for %lf seconds \n\n",time_elapsed);
     fclose(fp);
     
+<<<<<<< HEAD
+<<<<<<<< HEAD:app/hardware_main.c
+=======
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
     fp = fopen("savefile.txt","w");
     fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",wave_type,amplitude,period,vert_offset,duty_cycle);
     fclose(fp);
     pci_detach_device(hdl);
+<<<<<<< HEAD
+========
+
+>>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21:app/main.c
+=======
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
     
     exit(EXIT_SUCCESS);                                 //exit the program
     
@@ -83,6 +114,15 @@ void signal_handler( int signum)  //Ctrl+c handler
 
 int main(int argc, char * argv[])
 {
+<<<<<<< HEAD
+    pthread_t display_thread;
+    pthread_attr_t attr;
+    int rc;
+    long t;
+    void* status;
+
+=======
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
     //attach signal_handler to catch SIGINT
     signal(SIGINT, signal_handler);
     
@@ -93,8 +133,17 @@ int main(int argc, char * argv[])
 	
 	fp = fopen("savefile.txt","r");
 	fscanf(fp,"%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period, &prev_vert_offset, &prev_duty_cycle);
+<<<<<<< HEAD
+<<<<<<<< HEAD:app/hardware_main.c
 	vert_offset = prev_vert_offset;
 	
+========
+
+>>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21:app/main.c
+=======
+	vert_offset = prev_vert_offset;
+	
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
     //command line argument(s)
     for(j=1;j<argc;j++)
     {
@@ -177,9 +226,13 @@ int main(int argc, char * argv[])
     fprintf(fp,"Starting program\n");
     fclose(fp);
     
+<<<<<<< HEAD
+<<<<<<<< HEAD:app/hardware_main.c
 <<<<<<< HEAD:app/hardware_main.c
     pthread_create( &arrow_input_thread_ID, NULL, &arrow_input_thread, NULL );
 =======
+========
+>>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21:app/main.c
 
 
     /* ------------------- Adjustable params ------------------- */
@@ -194,7 +247,13 @@ int main(int argc, char * argv[])
 
     /* ----- Initialize and set thread detached attribute ------- */
     pthread_create(&DisplayTUI_ID, NULL, DisplayTUI, NULL);
+<<<<<<<< HEAD:app/hardware_main.c
 >>>>>>> fixed switch 2&3 in integration. Now adding 'current_params':app/main.c
+========
+>>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21:app/main.c
+=======
+    pthread_create( &arrow_input_thread_ID, NULL, &arrow_input_thread, NULL );
+>>>>>>> d16c60e99830d06eeb5d2f4f491b5c083e4d0b21
     pthread_create( &hardware_input_thread_ID, NULL, &hardware_input_thread, NULL );
     pthread_create( &waveform_thread_ID, NULL, &waveform_thread, NULL );   
            
