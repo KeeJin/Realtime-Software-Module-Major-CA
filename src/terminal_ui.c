@@ -43,7 +43,7 @@ void* DisplayTUI(void* args) {
   int cached_y_max, cached_x_max, y_max, x_max;
   int win_panel_height, win_panel_width;
   int x_padding, y_padding, key;
-  int graph_types_toggle_index = 0;
+  int graph_types_toggle_index = wave_type;
   float scaled_amplitude;
   GraphType graph_type_local;
   float amplitude_local;
@@ -108,8 +108,25 @@ void* DisplayTUI(void* args) {
   WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
   wattron(win_toggle, A_BOLD);
   wattron(win_toggle, COLOR_PAIR(MAIN_TEXT_COLOUR));
-  mvwprintw(win_toggle, 2, 2, "Graph Type:   SINE");
+  mvwprintw(win_toggle, 2, 2, "Graph Type: ");
+  mvwprintw(win_toggle, 2, 16,
+            graph_types_toggle[graph_types_toggle_index]);
   wattroff(win_toggle, A_BOLD);
+
+  
+  wattron(win_description, A_BOLD);
+  wattron(win_description, COLOR_PAIR(MAIN_TEXT_COLOUR));
+  mvwprintw(win_description, 2, 2, "Potentiometer 0 : Period (25 to 50 ms)");
+  mvwprintw(win_description, 3, 2, "Potentiometer 1 : Amplitude (0 to 5 V)");
+  mvwprintw(win_description, 5, 2, "Digital Switch 0: Stops the program");
+  mvwprintw(win_description, 6, 2, "Digital Switch 1: Mute/Unmute beeping");
+  mvwprintw(win_description, 7, 2, "Digital Switch 2: Saved values/Live");
+  mvwprintw(win_description, 8, 2, "Digital Switch 3: TUI/Oscilloscope display");
+  mvwprintw(win_description, 9, 2, "4 Digital LEDS  : Corresponds to switch state");
+  mvwprintw(win_description, 11, 2, "L/R arrow keys : Wave selector");
+  mvwprintw(win_description, 12, 2, "U/D arrow keys : Vertical offset (-5 to 5 V)");
+
+  wattroff(win_description, A_BOLD);
 
 #endif
   //pthread_mutex_lock(&mutex);
