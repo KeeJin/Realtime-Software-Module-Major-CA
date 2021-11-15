@@ -1,6 +1,5 @@
 #include "terminal_ui.h"
 
-#define HARDWARE 0 //0: without hardware; 1: with hardware 
 
 #if HARDWARE
 #include "waveform.h"

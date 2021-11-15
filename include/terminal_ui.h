@@ -7,6 +7,8 @@
 #define BASE_DELAY 1000
 #define MAIN_TEXT_COLOUR 6
 
+#define HARDWARE 0 //0: without hardware; 1: with hardware 
+
 typedef enum _graphType {
   SINE = 0,
   SQUARE = 1,
