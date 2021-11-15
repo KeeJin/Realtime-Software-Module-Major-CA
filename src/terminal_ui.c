@@ -1,8 +1,36 @@
 #include "terminal_ui.h"
 
+
+#if HARDWARE
+#include "waveform.h"
+#include "input.h"
+#include "PCI_init.h"
+#else
+int wave_type = 0;
+int prev_wave_type = 0;
+int current_wave_type = 0;
+float period = 50;
+float vert_offset = 0;
+float prev_vert_offset = 0;
+float current_vert_offset = 0;
+int dio_switch = 0;
+int switch2_value(int dio_switch)
+{
+  return 1;
+}
+int switch3_value(int dio_switch)
+{
+  return 0;
+}
+#endif
+
+
 #include <math.h>
 #include <unistd.h>
-
+float lower_limit;
+float upper_limit;
+float increment;
+int beeper;
 pthread_mutex_t mutex;
 
 void* DisplayTUI(void* args) {
@@ -14,7 +42,7 @@ void* DisplayTUI(void* args) {
   int cached_y_max, cached_x_max, y_max, x_max;
   int win_panel_height, win_panel_width;
   int x_padding, y_padding, key;
-  int graph_types_toggle_index = 0;
+  int graph_types_toggle_index = wave_type;
   float scaled_amplitude;
   GraphType graph_type_local;
   float amplitude_local;
@@ -79,18 +107,36 @@ void* DisplayTUI(void* args) {
   WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
   wattron(win_toggle, A_BOLD);
   wattron(win_toggle, COLOR_PAIR(MAIN_TEXT_COLOUR));
-  mvwprintw(win_toggle, 2, 2, "Graph Type:   SINE");
+  mvwprintw(win_toggle, 2, 2, "Graph Type: ");
+  mvwprintw(win_toggle, 2, 16,
+            graph_types_toggle[graph_types_toggle_index]);
   wattroff(win_toggle, A_BOLD);
 
+  
+  wattron(win_description, A_BOLD);
+  wattron(win_description, COLOR_PAIR(MAIN_TEXT_COLOUR));
+  mvwprintw(win_description, 2, 2, "Potentiometer 0 : Period (25 to 50 ms)");
+  mvwprintw(win_description, 3, 2, "Potentiometer 1 : Amplitude (0 to 5 V)");
+  mvwprintw(win_description, 5, 2, "Digital Switch 0: Stops the program");
+  mvwprintw(win_description, 6, 2, "Digital Switch 1: Mute/Unmute beeping");
+  mvwprintw(win_description, 7, 2, "Digital Switch 2: Saved values/Live");
+  mvwprintw(win_description, 8, 2, "Digital Switch 3: TUI/Oscilloscope display");
+  mvwprintw(win_description, 9, 2, "4 Digital LEDS  : Corresponds to switch state");
+  mvwprintw(win_description, 11, 2, "L/R arrow keys : Wave selector");
+  mvwprintw(win_description, 12, 2, "U/D arrow keys : Vertical offset (-5 to 5 V)");
+
+  wattroff(win_description, A_BOLD);
+
 #endif
-  pthread_mutex_lock(&mutex);
-  graph_type_local = graph_type;
+  //pthread_mutex_lock(&mutex);
+  graph_type_local = wave_type;
   amplitude_local = amplitude;
-  frequency_local = frequency;
+  frequency_local = 1/period*1000;
+  frequency = 1/period *1000;
+  vertical_offset_local = vert_offset;
   phase_shift_local = phase_shift;
-  vertical_offset_local = vertical_offset;
   time_period_ms_local = time_period_ms;
-  pthread_mutex_unlock(&mutex);
+ // pthread_mutex_unlock(&mutex);
   vertical_offset_local =
       vertical_offset_local /
       (0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0)) *
@@ -103,22 +149,56 @@ void* DisplayTUI(void* args) {
             scaled_amplitude, frequency, phase_shift, win_wave_plot_height,
             win_wave_plot_width);
 #ifndef DEBUG
-  while (key != 'q') {
-    pthread_mutex_lock(&mutex);
-    graph_type_local = graph_type;
+  //while (key != 'q') {
+  while (1) {
+   // pthread_mutex_lock(&mutex);
+    graph_type_local = wave_type;
     amplitude_local = amplitude;
-    frequency_local = frequency;
+    frequency_local = 1/period*1000;
+ 	frequency = 1/period*1000;
+    vertical_offset_local = vert_offset;
     phase_shift_local = phase_shift;
-    vertical_offset_local = vertical_offset;
     time_period_ms_local = time_period_ms;
-    pthread_mutex_unlock(&mutex);
+ //   pthread_mutex_unlock(&mutex);
     vertical_offset_local =
         vertical_offset_local /
         (0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0)) *
         ((float)win_wave_plot_height / 2.0);
     scaled_amplitude =
         0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
+    if(switch2_value(dio_switch))
+    {
+    if ( (vert_offset == prev_vert_offset) || (wave_type == prev_wave_type) )
+    //if (0)
+    {
+    	vert_offset = current_vert_offset;
+    	wave_type = current_wave_type;
+    	graph_type = wave_type;
+    	
+    graph_types_toggle_index = wave_type;
+  
+    graph_type_local = wave_type;
+    amplitude_local = amplitude;
+    frequency_local = 1/period*1000;
+ 	frequency = 1/period*1000;
+    vertical_offset_local = vert_offset;
+    phase_shift_local = phase_shift;
+    time_period_ms_local = time_period_ms;
 
+        wclear(win_wave_plot);
+        wclear(win_toggle);
+        DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
+                 vertical_offset_local);
+        WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
+        wattron(win_toggle, A_BOLD);
+        wattron(win_toggle, COLOR_PAIR(MAIN_TEXT_COLOUR));
+        mvwprintw(win_toggle, 2, 2, "Graph Type: ");
+        mvwprintw(win_toggle, 2, 16,
+                  graph_types_toggle[graph_types_toggle_index]);
+        wattroff(win_toggle, A_BOLD);
+       
+
+    }
     switch (key) {
       case KEY_RESIZE:
         getmaxyx(stdscr, y_max, x_max);
@@ -159,24 +239,31 @@ void* DisplayTUI(void* args) {
           mvwprintw(win_toggle, 2, 16,
                     graph_types_toggle[graph_types_toggle_index]);
           wattroff(win_toggle, A_BOLD);
-          UpdateStats(win_feedback, scaled_amplitude, frequency);
+          UpdateStats(win_feedback, scaled_amplitude, frequency, vert_offset);
         }
         break;
       case KEY_UP:
-        amplitude+=0.5;
+        vert_offset += increment;
+        if (vert_offset >= upper_limit) vert_offset = upper_limit;
+        current_vert_offset = vert_offset;
+        
         break;
       case KEY_DOWN:
-        amplitude-=0.5;
+        vert_offset -= increment;
+        if (vert_offset <= lower_limit) vert_offset = lower_limit;
+        current_vert_offset = vert_offset;
+        
         break;
 
       case KEY_LEFT:
-        frequency -= 0.5;
         if (graph_types_toggle_index == 0) {
           graph_types_toggle_index = 3;
         } else {
           graph_types_toggle_index--;
         }
         graph_type = graph_types_toggle_index;
+        wave_type = graph_types_toggle_index;
+        current_wave_type = wave_type;
         wclear(win_wave_plot);
         wclear(win_toggle);
         DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
@@ -190,13 +277,14 @@ void* DisplayTUI(void* args) {
         wattroff(win_toggle, A_BOLD);
         break;
       case KEY_RIGHT:
-        frequency += 0.5;
         if (graph_types_toggle_index == 3) {
           graph_types_toggle_index = 0;
         } else {
           graph_types_toggle_index++;
         }
         graph_type = graph_types_toggle_index;
+        wave_type = graph_types_toggle_index;
+        current_wave_type = wave_type;
         wclear(win_wave_plot);
         wclear(win_toggle);
         DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
@@ -211,6 +299,25 @@ void* DisplayTUI(void* args) {
         break;
       default:
         break;
+    }
+    }
+    else 
+    {
+      vert_offset = prev_vert_offset;
+      wave_type = prev_wave_type;
+        graph_types_toggle_index = prev_wave_type;
+        graph_type = graph_types_toggle_index;
+        wclear(win_wave_plot);
+        wclear(win_toggle);
+        DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
+                 vertical_offset_local);
+        WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
+        wattron(win_toggle, A_BOLD);
+        wattron(win_toggle, COLOR_PAIR(MAIN_TEXT_COLOUR));
+        mvwprintw(win_toggle, 2, 2, "Graph Type: ");
+        mvwprintw(win_toggle, 2, 16,
+                  graph_types_toggle[graph_types_toggle_index]);
+        wattroff(win_toggle, A_BOLD);
     }
     wclear(win_wave_plot);
     WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
@@ -227,8 +334,13 @@ void* DisplayTUI(void* args) {
     wrefresh(win_toggle);
     key = getch();
     phase_shift += 1.0;
-    if (phase_shift * frequency >= (float)win_wave_plot_width) {
+    if (phase_shift*period >= (float)win_wave_plot_width*25) {
       phase_shift = 0.0;
+      if(beeper && !switch3_value(dio_switch))
+      {
+      	putchar(7);
+      	printf("\n");
+      }
     }
     usleep(time_period_ms * BASE_DELAY);
   }
@@ -265,204 +377,181 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, GraphType type,
                int win_wave_plot_width) {
   int x, y, repeat;
   double i, ratio;
-  switch (type) {
-    case SINE: {
-      
-      for (i = 0.0; i < (win_wave_plot_width + phase_shift) - 3; i += 1.0) {
-        if ((i - phase_shift) <= 5) {
-          continue;
-        }
-        ratio = (2.0 * M_PI) / (win_wave_plot_width);
-        x = (int)(i - phase_shift);
-        y = (int)(scaled_amplitude * sin(i * ratio * frequency) +
-                  win_wave_plot_height / 2.0);
+  frequency /= 10;
+  
+  if(switch3_value(dio_switch))
+  {
 
-        PlotPoint(win_wave_plot, x, y);
+    
+  }
+  else
+  {
+    switch (type) {
+      case SINE: {
+        
+        for (i = 0.0; i < (win_wave_plot_width + phase_shift) - 3; i += 1.0) {
+          if ((i - phase_shift) <= 5) {
+            continue;
+          }
+          ratio = (2.0 * M_PI) / (win_wave_plot_width);
+          x = (int)(i - phase_shift);
+          y = (int)(scaled_amplitude * sin(i * ratio * frequency) +
+                    win_wave_plot_height / 2.0);
+
+          PlotPoint(win_wave_plot, x, y);
+        }
+        break;
       }
-      break;
-    }
-    case SQUARE: {
-      for (repeat = 0; repeat < 8 * frequency; repeat++) //number of cycles
-      {
-        for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i += 1.0)
+      case SQUARE: {
+        for (repeat = 0; repeat < 8 * frequency; repeat++) //number of cycles
         {
-          if ((i - phase_shift) <= 5) {
-            continue;
+          for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i += 1.0)
+          {
+            if ((i - phase_shift) <= 5) {
+              continue;
+            }
+            // Find Y
+            x = i - phase_shift;
+            y = scaled_amplitude;
+            y += win_wave_plot_height / 2;
+
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
           }
-          // Find Y
-          x = i - phase_shift;
-          y = scaled_amplitude;
-          y += win_wave_plot_height / 2;
 
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }
+          
+          for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency); i += 1.0)
+          {
+            if ((i - phase_shift) <= 5) {
+              continue;
+            }
+            // Find Y
+            x = i - phase_shift;
+            y = -scaled_amplitude;
+            y += win_wave_plot_height / 2;
 
-        
-        for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency); i += 1.0)
-        {
-          if ((i - phase_shift) <= 5) {
-            continue;
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
           }
-          // Find Y
-          x = i - phase_shift;
-          y = -scaled_amplitude;
-          y += win_wave_plot_height / 2;
+          
+          x = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency) - phase_shift;
+          for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
+          {
+            if ((x) <= 5) {
+              continue;
+            }
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
+          }
 
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
+          x = win_wave_plot_width * (2 * repeat + 2) / (2 * frequency) - phase_shift;
+          for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
+          {
+            if ((x) <= 5) {
+              continue;
+            }
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
+          }
         }
-        
-        x = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency) - phase_shift;
-        for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
-        {
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }
-
-        x = win_wave_plot_width * (2 * repeat + 2) / (2 * frequency) - phase_shift;
-        for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
-        {
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }
+        break;
       }
-      break;
-    }
-    case TRIANGULAR: {
-      for (repeat = 0; repeat < 8 * frequency; repeat++) //number of cycles
-      {
-        for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i += 1.0)
+      case TRIANGULAR: {
+        for (repeat = 0; repeat < 8 * frequency; repeat++) //number of cycles
         {
-          if ((i - phase_shift) <= 5) {
-            continue;
-          }
-          x = i - phase_shift;
-          y = scaled_amplitude - scaled_amplitude / win_wave_plot_width * 4 * i * frequency;
-          y += win_wave_plot_height /2 ;
-          y += (scaled_amplitude * repeat) * 4;
+          for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i += 1.0)
+          {
+            if ((i - phase_shift) <= 5) {
+              continue;
+            }
+            x = i - phase_shift;
+            y = scaled_amplitude - scaled_amplitude / win_wave_plot_width * 4 * i * frequency;
+            y += win_wave_plot_height /2 ;
+            y += (scaled_amplitude * repeat) * 4;
 
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
+          }
+
+          for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency); i += 1.0)
+          {
+            if ((i - phase_shift) <= 5) {
+              continue;
+            }
+            x = i - phase_shift;
+            y = -3 * scaled_amplitude + scaled_amplitude / win_wave_plot_width * 4 * i * frequency;
+            y += win_wave_plot_height / 2;
+            y -= (scaled_amplitude * repeat) * 4;
+
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
+          }    
         }
-
-        for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency); i += 1.0)
-        {
-          if ((i - phase_shift) <= 5) {
-            continue;
-          }
-          x = i - phase_shift;
-          y = -3 * scaled_amplitude + scaled_amplitude / win_wave_plot_width * 4 * i * frequency;
-          y += win_wave_plot_height / 2;
-          y -= (scaled_amplitude * repeat) * 4;
-
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }    
+        break;
       }
-      break;
-    }
-    case SAWTOOTH: {
-      for (repeat = 0; repeat < 8 * frequency; repeat++) //number of cycles
-      {
-        /*
-        for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i += 1.0)
+      case SAWTOOTH: {
+        for (repeat = 0; repeat < 8 * frequency; repeat++) //number of cycles
         {
-          if ((i - phase_shift) <= 5) {
-            continue;
+          for (i = win_wave_plot_width * (2 * repeat) / (1 * frequency); i < win_wave_plot_width * (2 * repeat + 1) / (1 * frequency); i += 1.0)
+          {
+            if ((i - phase_shift) <= 5) {
+              continue;
+            }
+            x = i - phase_shift;
+            y = scaled_amplitude - scaled_amplitude / win_wave_plot_width * 2 * i * frequency;
+            y += win_wave_plot_height /2 ;
+            y += (scaled_amplitude * repeat) * 4;
+
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
+          }  
+          for (i = win_wave_plot_width * (2 * repeat + 1) / (1 * frequency); i < win_wave_plot_width * (2 * repeat + 2) / (1 * frequency); i += 1.0)
+          {
+            if ((i - phase_shift) <= 5) {
+              continue;
+            }
+            x = i - phase_shift;
+            y = 3 * scaled_amplitude - scaled_amplitude / win_wave_plot_width * 2 * i * frequency;
+            y += win_wave_plot_height / 2;
+            y += (scaled_amplitude * repeat) * 4;
+
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
+          }        
+                
+          
+          x = win_wave_plot_width * (2 * repeat + 1) / (1 * frequency) - phase_shift;
+          for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
+          {
+            if ((x) <= 5) {
+              continue;
+            }
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
           }
-          x = i - phase_shift;
-          y = scaled_amplitude - scaled_amplitude / win_wave_plot_width * 4 * i * frequency;
-          y += win_wave_plot_height /2 ;
-          y += (scaled_amplitude * repeat) * 4;
-
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }
-        
-        x = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency) - phase_shift;
-        for (y = win_wave_plot_height / 2 - scaled_amplitude; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
-        {
-
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }
-
-        for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency); i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency); i += 1.0)
-        {
-          if ((i - phase_shift) <= 5) {
-            continue;
+          
+          x = win_wave_plot_width * (2 * repeat + 2) / (1 * frequency) - phase_shift;
+          for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
+          {
+            if ((x) <= 5) {
+              continue;
+            }
+            // Print cell
+            PlotPoint(win_wave_plot, (int)x, (int)y);
           }
-          x = i - phase_shift;
-          y = 3 * scaled_amplitude - scaled_amplitude / win_wave_plot_width * 4 * i * frequency;
-          y += win_wave_plot_height / 2;
-          y += (scaled_amplitude * repeat) * 4;
-
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }    
-
-        x = win_wave_plot_width * (2 * repeat + 2) / (2 * frequency) - phase_shift;
-        for (y = win_wave_plot_height / 2 - scaled_amplitude; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
-        {
-
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }*/
-
-        for (i = win_wave_plot_width * (2 * repeat) / (1 * frequency); i < win_wave_plot_width * (2 * repeat + 1) / (1 * frequency); i += 1.0)
-        {
-          if ((i - phase_shift) <= 5) {
-            continue;
-          }
-          x = i - phase_shift;
-          y = scaled_amplitude - scaled_amplitude / win_wave_plot_width * 2 * i * frequency;
-          y += win_wave_plot_height /2 ;
-          y += (scaled_amplitude * repeat) * 4;
-
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }  
-        for (i = win_wave_plot_width * (2 * repeat + 1) / (1 * frequency); i < win_wave_plot_width * (2 * repeat + 2) / (1 * frequency); i += 1.0)
-        {
-          if ((i - phase_shift) <= 5) {
-            continue;
-          }
-          x = i - phase_shift;
-          y = 3 * scaled_amplitude - scaled_amplitude / win_wave_plot_width * 2 * i * frequency;
-          y += win_wave_plot_height / 2;
-          y += (scaled_amplitude * repeat) * 4;
-
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }        
-              
-        
-        x = win_wave_plot_width * (2 * repeat + 1) / (1 * frequency) - phase_shift;
-        for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
-        {
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
+          
+          
+          
         }
-        
-        x = win_wave_plot_width * (2 * repeat + 2) / (1 * frequency) - phase_shift;
-        for (y = win_wave_plot_height / 2 - scaled_amplitude + 2; y < win_wave_plot_height / 2 + scaled_amplitude; y++)
-        {
-          // Print cell
-          PlotPoint(win_wave_plot, (int)x, (int)y);
-        }
-        
-        
-        
+
+        break;
       }
-
-      break;
+      default:
+        break;
     }
-    default:
-      break;
   }
 
-  UpdateStats(win_feedback, amplitude, frequency);
+  UpdateStats(win_feedback, amplitude, frequency, vert_offset);
 }
 
 void PlotPoint(WINDOW* win, int x, int y) {
@@ -473,23 +562,25 @@ void PlotPoint(WINDOW* win, int x, int y) {
   wattroff(win, COLOR_PAIR(1));
 }
 
-void UpdateStats(WINDOW* win, float amplitude, float frequency) {
-  float period;
+void UpdateStats(WINDOW* win, float amplitude, float frequency, float vert_offset) {
+  //float period;
   wattron(win, A_BOLD);
   //   wattron(win, A_STANDOUT);
   wattron(win, COLOR_PAIR(MAIN_TEXT_COLOUR));
-  period = 1 / frequency;
-  mvwprintw(win, 2, 2, "Amplitude: ");
+  //period = 1 / frequency;
+  mvwprintw(win, 2, 2, "Amplitude       : ");
   //   wattron(win, COLOR_PAIR(3));
-  mvwprintw(win, 3, 2, "Frequency: ");
+  mvwprintw(win, 3, 2, "Frequency       : ");
   //   wattron(win, COLOR_PAIR(4));
-  mvwprintw(win, 4, 2, "Period: ");
+  mvwprintw(win, 4, 2, "Period          : ");
+  mvwprintw(win, 5, 2, "Vertical Offset : ");
 
   //   wattroff(win, A_STANDOUT);
   //   wattron(win, COLOR_PAIR(6));
-  mvwprintw(win, 2, 15, "%.2f", amplitude);
-  mvwprintw(win, 3, 15, "%.2f Hz", frequency);
-  mvwprintw(win, 4, 15, "%.2f s", period);
+  mvwprintw(win, 2, 20, "%.2f V", amplitude);
+  mvwprintw(win, 3, 20, "%.2f Hz", frequency);
+  mvwprintw(win, 4, 20, "%.2f ms", period);
+  mvwprintw(win, 5, 20, "%.2f V", vert_offset);
   wattroff(win, A_BOLD);
 }
 
