@@ -126,6 +126,8 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
             amplitude = readpotentiometer1*1.0/pot_res * 5;           //map 0 to pot_res --> 0 to 5 volt   
             if(amplitude>5)amplitude=5; //capped at 5v to prevent overflow
             period = readpotentiometer2*1.0/pot_res * 25+25;    //map 0 to pot_res --> 25 to 50 
+            current_amplitude = amplitude;
+            current_period = period;
         }
         else
         {
@@ -154,7 +156,7 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
             printf("Ending program...\n");
             printf("Resetting hardware...\n");
             fp = fopen("savefile.txt","w");
-            fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",wave_type,amplitude,period,vert_offset,duty_cycle);
+            fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",current_wave_type,current_amplitude,current_period,current_vert_offset,duty_cycle);
             fclose(fp);
             pci_detach_device(hdl);
             wave_type = 4;

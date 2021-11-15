@@ -38,7 +38,7 @@ void signal_handler( int signum)  //Ctrl+c handler
     endwin();
     system("clear");    
     fp = fopen("savefile.txt","w");
-    fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",wave_type,amplitude,period,vert_offset,duty_cycle);
+            fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",current_wave_type,current_amplitude,current_period,current_vert_offset,duty_cycle);
     fclose(fp);
     pci_detach_device(hdl);
     printf("Ending program...\n");
