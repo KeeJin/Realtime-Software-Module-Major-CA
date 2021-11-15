@@ -165,7 +165,24 @@ int main(int argc, char * argv[])
     fprintf(fp,"Starting program\n");
     fclose(fp);
     
+<<<<<<< HEAD:app/hardware_main.c
     pthread_create( &arrow_input_thread_ID, NULL, &arrow_input_thread, NULL );
+=======
+
+
+    /* ------------------- Adjustable params ------------------- */
+  //  pthread_mutex_lock(&mutex);
+    time_period_ms = 50;
+    graph_type = wave_type;
+    frequency = 1/period;
+    vertical_offset = vert_offset;
+    phase_shift = 0.0;
+    //pthread_mutex_unlock(&mutex);
+    /* ---------------------------------------------------------- */
+
+    /* ----- Initialize and set thread detached attribute ------- */
+    pthread_create(&DisplayTUI_ID, NULL, DisplayTUI, NULL);
+>>>>>>> fixed switch 2&3 in integration. Now adding 'current_params':app/main.c
     pthread_create( &hardware_input_thread_ID, NULL, &hardware_input_thread, NULL );
     pthread_create( &waveform_thread_ID, NULL, &waveform_thread, NULL );   
            
