@@ -1,7 +1,30 @@
 #include "terminal_ui.h"
+
+#define HARDWARE 0 //0: without hardware; 1: with hardware 
+
+#if HARDWARE
 #include "waveform.h"
 #include "input.h"
 #include "PCI_init.h"
+#else
+int wave_type = 0;
+int prev_wave_type = 0;
+int current_wave_type = 0;
+float period = 50;
+float vert_offset = 0;
+float prev_vert_offset = 0;
+float current_vert_offset = 0;
+int dio_switch = 0;
+int switch2_value(int dio_switch)
+{
+  return 1;
+}
+int switch3_value(int dio_switch)
+{
+  return 0;
+}
+#endif
+
 
 #include <math.h>
 #include <unistd.h>
