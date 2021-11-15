@@ -179,7 +179,7 @@ int main(int argc, char * argv[])
 
     /* ------------------- Adjustable params ------------------- */
   //  pthread_mutex_lock(&mutex);
-    time_period_ms = 100;
+    time_period_ms = 50;
     graph_type = wave_type;
     frequency = 1/period;
     vertical_offset = vert_offset;

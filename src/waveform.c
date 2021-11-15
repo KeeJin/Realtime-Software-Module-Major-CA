@@ -23,7 +23,7 @@ int beeping = 1; //to allow for only 1 beep per peak (for sine)
 
 void sine_wave() //sine wave function
 {
-    while(wave_type==0)         //stops if wave_type is not 1 (sine)
+    while( (wave_type==0) && (switch3_value(dio_switch)) )         //stops if wave_type is not 1 (sine)
     {
         for(i=0;i<N;i++) 
         {
@@ -66,7 +66,7 @@ void sine_wave() //sine wave function
 
 void square_wave() //square wave function
 {
-    while(wave_type==1)     //stops if wave_type is not 2 (square)
+    while((wave_type==1)  && (switch3_value(dio_switch)))     //stops if wave_type is not 2 (square)
     {
         if(beeper) putchar(7); //beeps at first time wave reaches high for the cycle
         printf("\n"); 
@@ -109,7 +109,7 @@ void square_wave() //square wave function
 
 void triangular_wave()
 {
-    while(wave_type==2)     //stops if wave_type is not 3 (triangular)
+    while((wave_type==2) && (switch3_value(dio_switch)))     //stops if wave_type is not 3 (triangular)
     {
         for(i=0;i<N/2;i++) 
         {
@@ -154,7 +154,7 @@ void triangular_wave()
 }
 void sawtooth_wave()
 {
-    while(wave_type==3)     //stops if wave_type is not 3 (triangular)
+    while((wave_type==3) && (switch3_value(dio_switch)))     //stops if wave_type is not 3 (triangular)
     {
         for(i=0;i<N;i++) 
         {
@@ -181,8 +181,20 @@ void sawtooth_wave()
 
 void zero_signal()
 {
-
-    while(wave_type==4)     //stops if wave_type is not 0 (zero voltage)
+    #if PCI
+    //data= (5 + vert_offset)/10* 0xFFFF;                       
+    data = 1/2 * 0xFFFF;			//corresponds to 0 voltage signal
+    out16(DA_CTLREG,0x0923);			    // DA Enable, #0, #1, SW 10V bipolar		
+    out16(DA_FIFOCLR, 0);					// Clear DA FIFO  buffer
+    out16(DA_Data,(short) data);													
+    #endif	
+    
+    #if PCIe
+    //data= (5 + vert_offset)/10* 0x0FFF;                     
+    data = 1/2 * 0x0FFF;			//corresponds to 0 voltage signal
+    out16(DAC0_Data, data);
+    #endif 		
+    while( (wave_type == 4 ) || !(switch3_value(dio_switch)) )     //stops if wave_type is not 0 (zero voltage)
     {
   		#if PCI
     	//data= (5 + vert_offset)/10* 0xFFFF;                       
@@ -205,7 +217,7 @@ void zero_signal()
 void *waveform_thread(void *arg)  //thread to generate wave based on wave parameters
 {   
     while(1)
-    {   if(switch2_value(dio_switch))
+    {   if(switch3_value(dio_switch))
         {
             switch(wave_type)
             {
@@ -229,6 +241,6 @@ void *waveform_thread(void *arg)  //thread to generate wave based on wave parame
                     break;
             }
         }
-        else wave_type = prev_wave_type;
+        else zero_signal();
     } 
 }
