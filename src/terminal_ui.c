@@ -129,6 +129,37 @@ void* DisplayTUI(void* args) {
         0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
     if(switch2_value(dio_switch))
     {
+    if ( (vert_offset == prev_vert_offset) || (wave_type == prev_wave_type) )
+    //if (0)
+    {
+    	vert_offset = current_vert_offset;
+    	wave_type = current_wave_type;
+    	graph_type = wave_type;
+    	
+    graph_types_toggle_index = wave_type;
+  
+    graph_type_local = wave_type;
+    amplitude_local = amplitude;
+    frequency_local = 1/period*1000;
+ 	frequency = 1/period*1000;
+    vertical_offset_local = vert_offset;
+    phase_shift_local = phase_shift;
+    time_period_ms_local = time_period_ms;
+
+        wclear(win_wave_plot);
+        wclear(win_toggle);
+        DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
+                 vertical_offset_local);
+        WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
+        wattron(win_toggle, A_BOLD);
+        wattron(win_toggle, COLOR_PAIR(MAIN_TEXT_COLOUR));
+        mvwprintw(win_toggle, 2, 2, "Graph Type: ");
+        mvwprintw(win_toggle, 2, 16,
+                  graph_types_toggle[graph_types_toggle_index]);
+        wattroff(win_toggle, A_BOLD);
+       
+
+    }
     switch (key) {
       case KEY_RESIZE:
         getmaxyx(stdscr, y_max, x_max);
@@ -175,11 +206,13 @@ void* DisplayTUI(void* args) {
       case KEY_UP:
         vert_offset += increment;
         if (vert_offset >= upper_limit) vert_offset = upper_limit;
+        current_vert_offset = vert_offset;
         
         break;
       case KEY_DOWN:
         vert_offset -= increment;
         if (vert_offset <= lower_limit) vert_offset = lower_limit;
+        current_vert_offset = vert_offset;
         
         break;
 
@@ -191,6 +224,7 @@ void* DisplayTUI(void* args) {
         }
         graph_type = graph_types_toggle_index;
         wave_type = graph_types_toggle_index;
+        current_wave_type = wave_type;
         wclear(win_wave_plot);
         wclear(win_toggle);
         DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
@@ -211,6 +245,7 @@ void* DisplayTUI(void* args) {
         }
         graph_type = graph_types_toggle_index;
         wave_type = graph_types_toggle_index;
+        current_wave_type = wave_type;
         wclear(win_wave_plot);
         wclear(win_toggle);
         DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,

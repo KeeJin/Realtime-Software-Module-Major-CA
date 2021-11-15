@@ -10,6 +10,12 @@ float period;  //period in milliseconds
 float vert_offset;
 int duty_cycle;      //duty cycle (only affects square wave) --> fixed at 50% for now
 
+int current_wave_type;  
+float current_amplitude;    
+float current_period;  
+float current_vert_offset;
+int current_duty_cycle;     
+
 int prev_wave_type;  
 float prev_amplitude;    
 float prev_period;  
