@@ -24,27 +24,27 @@ float upper_limit = 5;
 float increment =0.1;
 
 //variable for file logging
-FILE *fp;
 //variables for finding the duration that the program runs
-struct timespec start,stop;
-float period;
 
 pthread_t arrow_input_thread_ID;
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
 
 
-/**
-    function to handle SIGINT signal (ctrl+c):
-    write exit message & duration that the program has run to log.txt, clear terminal screen, print exit message,
-    stops the program
-    
-    @param signum: signal number
-    @return void
-*/
 void signal_handler( int signum)  //Ctrl+c handler
 {
-    
+    //kill ncurses input as well
+    pthread_cancel(arrow_input_thread_ID);
+    wave_type = 4;
+    delay(period*100);
+	pthread_cancel(waveform_thread_ID);
+	#if PCI
+	out8(DIO_PORTB,0);
+	#endif
+	#if PCIe
+	out8(DIO_Data,0);
+	#endif
+	
     //get the time when the program stops
     if(clock_gettime(CLOCK_REALTIME,&stop)==-1)
     { 
@@ -52,27 +52,21 @@ void signal_handler( int signum)  //Ctrl+c handler
     }
     
     //compute duration that program has run
-    period=(double)(stop.tv_sec-start.tv_sec)+ (double)(stop.tv_nsec- start.tv_nsec)/1000000000;
+    time_elapsed=(double)(stop.tv_sec-start.tv_sec)+ (double)(stop.tv_nsec- start.tv_nsec)/1000000000;
     
     ///create/open log.txt for logging & log exit message and duration that the program has run
     fp = fopen("log.txt","a");
     fprintf(fp,"Ending program \n");
-    fprintf(fp,"Program runs for %lf seconds \n\n",period);
+    fprintf(fp,"Program runs for %lf seconds \n\n",time_elapsed);
     fclose(fp);
     
+    fp = fopen("savefile.txt","w");
+    fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",wave_type,amplitude,period,vert_offset,duty_cycle);
+    fclose(fp);
     pci_detach_device(hdl);
     
-    system("/usr/bin/clear");                           //clear screen
-    printf("_________________________     \n");         //exit message
-    printf("( GOOD BYE)                  \n");
-    printf(" -------------------------    \n");
-    printf("        o   ^__^\n");
-    printf("         o  (oo)\\_______      \n");
-    printf("            (__)\\       )\\/\\  \n");
-    printf("              ||----w |       \n");
-    printf("              ||     ||       \n");
-    printf( "\n--------EXIT THE PROGRAM-------\n" );
     exit(EXIT_SUCCESS);                                 //exit the program
+    
 }
 
 int main(int argc, char * argv[])
@@ -81,12 +75,14 @@ int main(int argc, char * argv[])
     signal(SIGINT, signal_handler);
     
     //Set Default Values of wave parameters
-    wave_type = 1;    //sine
-    amplitude = 2.0;  
-    period = 50;
+    wave_type = 0;    //sine
     vert_offset = 0;
     duty_cycle=50; 
-
+	
+	fp = fopen("savefile.txt","r");
+	fscanf(fp,"%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period, &prev_vert_offset, &prev_duty_cycle);
+	vert_offset = prev_vert_offset;
+	
     //command line argument(s)
     for(j=1;j<argc;j++)
     {

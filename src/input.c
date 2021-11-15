@@ -174,22 +174,38 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
    		switch1_value(dio_switch);
 		if (switch0!=switch0_prev)
         {
-        	//kill ncurses input as well
-        	pthread_cancel(arrow_input_thread_ID);
-        	wave_type = 0;
-        	delay(period*100);
-			pthread_cancel(waveform_thread_ID);
-			#if PCI
-			out8(DIO_PORTB,0);
-			#endif
-			#if PCIe
-			out8(DIO_Data,0);
-			#endif
-
-        	pci_detach_device(hdl);
-   		 	exit(EXIT_SUCCESS);                                 //exit the program
-            //is it possible to call a CTRL-C from here?
-            //cause main.c handles ctrl-c signal
+    //kill ncurses input as well
+    pthread_cancel(arrow_input_thread_ID);
+    wave_type = 4;
+    delay(period*100);
+	pthread_cancel(waveform_thread_ID);
+	#if PCI
+	out8(DIO_PORTB,0);
+	#endif
+	#if PCIe
+	out8(DIO_Data,0);
+	#endif
+	
+    //get the time when the program stops
+    if(clock_gettime(CLOCK_REALTIME,&stop)==-1)
+    { 
+        printf("clock gettime stop error");
+    }
+    
+    //compute duration that program has run
+    time_elapsed=(double)(stop.tv_sec-start.tv_sec)+ (double)(stop.tv_nsec- start.tv_nsec)/1000000000;
+    
+    ///create/open log.txt for logging & log exit message and duration that the program has run
+    fp = fopen("log.txt","a");
+    fprintf(fp,"Ending program \n");
+    fprintf(fp,"Program runs for %lf seconds \n\n",time_elapsed);
+    fclose(fp);
+    fp = fopen("savefile.txt","w");
+    fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",wave_type,amplitude,period,vert_offset,duty_cycle);
+    fclose(fp);
+    pci_detach_device(hdl);
+    
+    exit(EXIT_SUCCESS);                                 //exit the program
 		}    
   
     }
