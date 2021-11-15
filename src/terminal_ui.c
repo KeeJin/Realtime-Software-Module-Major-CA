@@ -295,7 +295,7 @@ void* DisplayTUI(void* args) {
     wrefresh(win_toggle);
     key = getch();
     phase_shift += 1.0;
-    if (phase_shift*period >= (float)win_wave_plot_width*9) {
+    if (phase_shift*period >= (float)win_wave_plot_width*25) {
       phase_shift = 0.0;
       if(beeper && !switch3_value(dio_switch))
       {

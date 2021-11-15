@@ -33,8 +33,20 @@ pthread_t waveform_thread_ID;
 
 void signal_handler( int signum)  //Ctrl+c handler
 {
+<<<<<<< HEAD:app/hardware_main.c
     //kill ncurses input as well
     pthread_cancel(arrow_input_thread_ID);
+=======
+    pthread_cancel(DisplayTUI_ID);
+    endwin();
+    system("clear");    
+    fp = fopen("savefile.txt","w");
+            fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",current_wave_type,current_amplitude,current_period,current_vert_offset,duty_cycle);
+    fclose(fp);
+    pci_detach_device(hdl);
+    printf("Ending program...\n");
+    printf("Resetting hardware...\n");
+>>>>>>> save function modified. command arguments need to touch up:app/main.c
     wave_type = 4;
     delay(period*100);
 	pthread_cancel(waveform_thread_ID);
