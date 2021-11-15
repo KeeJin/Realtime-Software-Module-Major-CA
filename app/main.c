@@ -11,7 +11,6 @@
 #include "PCI_init.h"
 #include "input.h"
 #include "waveform.h"
-#include "app_tui.h"
 
 
 int j;
@@ -20,11 +19,59 @@ char colon=':';
 char argument;
 char* argument_value;
 
+float lower_limit = -5;
+float upper_limit = 5;
+float increment =0.1;
+
+//variable for file logging
+FILE *fp;
+//variables for finding the duration that the program runs
+struct timespec start,stop;
+float period;
+
+pthread_t arrow_input_thread_ID;
+pthread_t hardware_input_thread_ID;
+pthread_t waveform_thread_ID;
 
 
+/**
+    function to handle SIGINT signal (ctrl+c):
+    write exit message & duration that the program has run to log.txt, clear terminal screen, print exit message,
+    stops the program
+    
+    @param signum: signal number
+    @return void
+*/
 void signal_handler( int signum)  //Ctrl+c handler
 {
+    
+    //get the time when the program stops
+    if(clock_gettime(CLOCK_REALTIME,&stop)==-1)
+    { 
+        printf("clock gettime stop error");
+    }
+    
+    //compute duration that program has run
+    period=(double)(stop.tv_sec-start.tv_sec)+ (double)(stop.tv_nsec- start.tv_nsec)/1000000000;
+    
+    ///create/open log.txt for logging & log exit message and duration that the program has run
+    fp = fopen("log.txt","a");
+    fprintf(fp,"Ending program \n");
+    fprintf(fp,"Program runs for %lf seconds \n\n",period);
+    fclose(fp);
+    
     pci_detach_device(hdl);
+    
+    system("/usr/bin/clear");                           //clear screen
+    printf("_________________________     \n");         //exit message
+    printf("( GOOD BYE)                  \n");
+    printf(" -------------------------    \n");
+    printf("        o   ^__^\n");
+    printf("         o  (oo)\\_______      \n");
+    printf("            (__)\\       )\\/\\  \n");
+    printf("              ||----w |       \n");
+    printf("              ||     ||       \n");
+    printf( "\n--------EXIT THE PROGRAM-------\n" );
     exit(EXIT_SUCCESS);                                 //exit the program
 }
 
@@ -34,12 +81,11 @@ int main(int argc, char * argv[])
     signal(SIGINT, signal_handler);
     
     //Set Default Values of wave parameters
-    wave_type = 0;    //sine
+    wave_type = 1;    //sine
+    amplitude = 2.0;  
+    period = 50;
     vert_offset = 0;
     duty_cycle=50; 
-
-	fp = fopen("prev_wave.txt","r");
-	fscanf(fp, "%d %f %f %f %d",&prev_wave_type,&prev_amplitude,&prev_period,&prev_vert_offset,&prev_duty_cycle);  
 
     //command line argument(s)
     for(j=1;j<argc;j++)
@@ -91,7 +137,7 @@ int main(int argc, char * argv[])
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: Invalid input\n");
-                    printf("Input 0 for sine wave, 1 for square wave, 2 for triangular wave, 3 for sawtooth wave\n");
+                    printf("Input 1 for sine wave, 2 for square wave, 3 for triangular wave, 0 for zero signal (no wave)\n");
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 }  
@@ -100,8 +146,8 @@ int main(int argc, char * argv[])
             default:    //invalid
                 printf("\n*******************************************************\n");
                 printf("ERR: Invalid command line argument\n");
-                printf("Command line argument should be:\n");
-                printf("../main t:wave_type v:offset\n");
+                printf("Command line argument should be as:\n");
+                printf("./main t:wave_type amplitude:A_value m:mean_value f:frequency level D:duty_cyctle_value\n");
                 printf("*******************************************************\n");
                 return 0;   //invalid, exit program
                 break;
@@ -117,36 +163,18 @@ int main(int argc, char * argv[])
     { 
         printf("clock gettime start error");
     } 
-
+    
+    //create/open log.txt for logging & write starting message
+    fp = fopen("log.txt","a");
+    fprintf(fp,"Starting program\n");
+    fclose(fp);
     
     pthread_create( &arrow_input_thread_ID, NULL, &arrow_input_thread, NULL );
     pthread_create( &hardware_input_thread_ID, NULL, &hardware_input_thread, NULL );
-    pthread_create( &app_tui_thread_ID, NULL, &app_tui_thread, NULL );
-    
-    delay(100);
     pthread_create( &waveform_thread_ID, NULL, &waveform_thread, NULL );   
            
  	while(1)
- 	{
-        if(switch2_value(dio_switch))
-        {
-            ch = getchar();
-            if(ch==65)	
-            {
-                vert_offset+=increment;
-                if (vert_offset >= upper_limit) vert_offset = upper_limit;
-                //printf("%.2f, Up", vert_offset);
-            }
-            if(ch==66)
-            {
-                vert_offset-=increment;
-                if (vert_offset <= lower_limit) vert_offset = lower_limit;
-                    //printf("%.2f, down", vert_offset);
-            }
-        }
-        else vert_offset = prev_vert_offset;
-
-	}
+ 	{}
   	
   	printf("\n\nExit Program\n");
     pci_detach_device(hdl);

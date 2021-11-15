@@ -15,6 +15,18 @@
 #include "PCI_init.h"
 #include "waveform.h"     
 
+uint16_t readpotentiometer1;
+uint16_t readpotentiometer2;
+char ch =0;
+float lower_limit;
+float upper_limit;
+float increment;
+
+pthread_t arrow_input_thread_ID;
+pthread_t hardware_input_thread_ID;
+pthread_t waveform_thread_ID;
+
+int beeper;
 
 /*
 #if PCI
@@ -27,6 +39,17 @@ int pot_res = 65536;
 */
 int pot_res = 32768;
 
+
+int switch_waveform(uint16_t switch_wave) //function to read switches
+{
+	#if PCI
+    return (switch_wave>>2)-60; //shift 2, offset by 60 because the switches (1111switch1 switch2 **)
+    #endif
+	#if PCIe
+    return (switch_wave>>2); //shift 2, offset by 60 because the switches (1111switch1 switch2 **)
+    #endif
+    // FLAGGED! TO CHANGE TO NCURSES INPUT
+}
 
 void read_potentiometer() //function to read potentiometers
 {
@@ -76,17 +99,30 @@ int switch0_value(int switch_value) //funciton to read 1st switch --> kill code 
 
 int switch1_value(int switch_value) //funciton to read 2nd switch --> mute beeper
 {
-	 return (switch_value>>1)%2;
+	 switch_value = (switch_value>>1)%2;
+	 if(switch_value) beeper = 1;
+	 else beeper = 0;
 }
 
-int switch2_value(int switch_value) //funciton to read 3rd switch --> toggle btw live & loaded
+void *arrow_input_thread(void *arg) // thread to change vertical offset using up & down arrow keys 
 {
-	 return (switch_value>>2)%2;
-}
-
-int switch3_value(int switch_value) //funciton to read 4th switch --> unused
-{
-	 return (switch_value>>3)%2;
+		while(1)
+        {
+		    ch = getchar();
+		    if(ch==65)	
+            {
+                vert_offset+=increment;
+                if (vert_offset >= upper_limit) vert_offset = upper_limit;
+                //printf("%.2f, Up", vert_offset);
+            }
+            if(ch==66)
+            {
+                vert_offset-=increment;
+                if (vert_offset <= lower_limit) vert_offset = lower_limit;
+                    //printf("%.2f, down", vert_offset);
+            }
+		}
+		
 }
 
 void *hardware_input_thread(void *arg) // thread for digital I/O and potentiometer
@@ -100,55 +136,49 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
     dio_switch= in8(DIO_Data);
     #endif
 
-    prev_switch0= switch0_value(dio_switch);
+	switch0=switch0_value(dio_switch);
+    switch0_prev=switch0;
     while(1)
     {
+        update_LED();   //visualize the four switch states to the four LEDs        
+        read_potentiometer();        //Read from potentiometer 1 and 2
+
+        //Convert potentiometer readings to amplitude and average and update the variables
+        //maximum potentiometer reading= pot_res (32768 or 65536)
+        amplitude = readpotentiometer1*1.0/pot_res * 5;           //map 0 to pot_res --> 0 to 5 volt   
+        if(amplitude>5)amplitude=5; //capped at 5v to prevent overflow
+        period = readpotentiometer2*1.0/pot_res * 25+25;    //map 0 to pot_res --> 25 to 50 
+        
+        wave_type = switch_waveform(dio_switch); // FLAGGED! TO BE CHANGED TO NCURSES
+
+        //print the wave parameters    
+        system("clear");
+ 		printf("------------------------------------------------------------------\n");
+	 	printf("Amplitude \t Period \t Vertical offset \n");
+  		printf("------------------------------------------------------------------\n");
+ 	    printf("%.2f \t %.2f \t\t %.2f\n",amplitude,period,vert_offset); //SEND TO NCURSES
+ 	   
+        
+//        delay(1000);   
+        //read SWITCH
         #if PCI
-		dio_switch = in8(DIO_PORTA);
+		dio_switch = in8(DIO_PORTA); // FLAGGED!
 		#endif
 		
         #if PCIe
-		dio_switch = in8(DIO_Data); 
+		dio_switch = in8(DIO_Data); // FLAGGED!
 		#endif
-
-        update_LED();   //visualize the four switch states to the four LEDs        
-
-        if(switch1_value(dio_switch)) beeper = 1;
-        else beeper = 0;
-
-
-        if(switch2_value(dio_switch))
+		
+		
+		switch0=switch0_value(dio_switch);
+   		switch1_value(dio_switch);
+		if (switch0!=switch0_prev)
         {
-            read_potentiometer();        //Read from potentiometer 1 and 2
-            //Convert potentiometer readings to amplitude and average and update the variables
-            //maximum potentiometer reading= pot_res (32768 or 65536)
-            amplitude = readpotentiometer1*1.0/pot_res * 5;           //map 0 to pot_res --> 0 to 5 volt   
-            if(amplitude>5)amplitude=5; //capped at 5v to prevent overflow
-            period = readpotentiometer2*1.0/pot_res * 25+25;    //map 0 to pot_res --> 25 to 50 
-        }
-        else
-        {
-            amplitude = prev_amplitude;
-            period = prev_period;
-            duty_cycle = prev_duty_cycle;
-        }
-        
-
-		if (switch0_value(dio_switch)!=prev_switch0)
-        {
-            fp = fopen("prev_wave.txt","w");
-            fprintf(fp,"%d\n",wave_type);
-            fprintf(fp,"%f\n",amplitude);
-            fprintf(fp,"%f\n",period);
-            fprintf(fp,"%f\n",vert_offset);
-            fprintf(fp,"%d\n",duty_cycle);
-            fclose(fp);
-            
+        	//kill ncurses input as well
         	pthread_cancel(arrow_input_thread_ID);
-        	wave_type = 4;
+        	wave_type = 0;
         	delay(period*100);
 			pthread_cancel(waveform_thread_ID);
-			pthread_cancel(app_tui_thread_ID);
 			#if PCI
 			out8(DIO_PORTB,0);
 			#endif

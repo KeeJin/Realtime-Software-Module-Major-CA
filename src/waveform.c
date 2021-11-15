@@ -11,12 +11,17 @@
 #include "PCI_init.h" 
 #include "waveform.h" 
 
+unsigned int i;
+unsigned int data;
+int beeper;
 
+int N=50; //number of "cuts" to make wave
+int beep = 1; //to allow for only 1 beep per peak (for sine)
 
 
 void sine_wave() //sine wave function
 {
-    while(wave_type==0)         //sine = 0
+    while(wave_type==1)         //stops if wave_type is not 1 (sine)
     {
         for(i=0;i<N;i++) 
         {
@@ -59,7 +64,7 @@ void sine_wave() //sine wave function
 
 void square_wave() //square wave function
 {
-    while(wave_type==1)     //square = 1
+    while(wave_type==2)     //stops if wave_type is not 2 (square)
     {
         if(beeper) putchar(7); //beeps at first time wave reaches high for the cycle
         printf("\n"); 
@@ -102,7 +107,7 @@ void square_wave() //square wave function
 
 void triangular_wave()
 {
-    while(wave_type==2)     //triangle = 2
+    while(wave_type==3)     //stops if wave_type is not 3 (triangular)
     {
         for(i=0;i<N/2;i++) 
         {
@@ -145,21 +150,21 @@ void triangular_wave()
         printf("\n");
     }
 }
-void sawtooth_wave()
+void zero_signal()
 {
-    while(wave_type==3)     //stops if wave_type is not 3 (triangular)
+    while(wave_type==0)     //stops if wave_type is not 3 (triangular)
     {
-        for(i=0;i<N/2;i++) 
+        for(i=0;i<N;i++) 
         {
             #if PCI
-            data=( (vert_offset -amplitude+ amplitude*4*i/N + 10)/20.0  * 0xFFFF );
+            data=( (vert_offset -amplitude+ amplitude*2*i/N + 10)/20.0  * 0xFFFF );
             out16(DA_CTLREG,0x0923);			    // DA Enable, #0, #1, SW 10V bipolar		
             out16(DA_FIFOCLR, 0);					// Clear DA FIFO  buffer
             out16(DA_Data,(short) data);
             #endif
 
             #if PCIe
-            data=( (vert_offset -amplitude+ amplitude*4*i/N + 10)/20.0  * 0x0FFF );
+            data=( (vert_offset -amplitude+ amplitude*2*i/N + 10)/20.0  * 0x0FFF );
             out16(DAC0_Data, data);
             #endif
 
@@ -172,10 +177,10 @@ void sawtooth_wave()
     }    //sawtooth wave here
 }
 
-void zero_signal()
+void sawtooth_wave()
 {
 
-    while(wave_type==4)     //stops if wave_type is not 0 (zero voltage)
+    while(wave_type==0)     //stops if wave_type is not 0 (zero voltage)
     {
   		#if PCI
     	//data= (5 + vert_offset)/10* 0xFFFF;                       
@@ -201,19 +206,19 @@ void *waveform_thread(void *arg)  //thread to generate wave based on wave parame
     {
         switch(wave_type)
         {
-            case(0):    //sine
+            case(1):    //sine
                 sine_wave();
                 break;
-            case(1):    //square
+            case(2):    //square
                 square_wave();
                 break;
-            case(2):    //triangular
+            case(3):    //triangular
                 triangular_wave();
                 break;
-            case(3):    //sawtooth
+            case(4):    //sawtooth
                 sawtooth_wave();
                 break;
-            case(4):    //zero voltage
+            case(0):    //zero voltage
                 zero_signal();
                 break;
             default:
