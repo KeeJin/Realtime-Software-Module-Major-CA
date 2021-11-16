@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: Invalid input\n");
-                    printf("Input 1 for sine wave, 2 for square wave, 3 for triangular wave, 0 for zero signal (no wave)\n");
+                    printf("Input 0 for sine wave, 1 for square wave, 2 for triangular wave, 3 for sawtooth wave\n");
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 }  
