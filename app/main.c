@@ -20,10 +20,6 @@ char colon=':';
 char argument;
 char* argument_value;
 
-float lower_limit = -5;
-float upper_limit = 5;
-float increment =0.1;
-
 //variable for file logging
 //variables for finding the duration that the program runs
 
@@ -128,32 +124,32 @@ int main(int argc, char * argv[])
         switch (argument)
         {
             case('v'):                                  //parse average/mean value and check whether it is of correct data type
-                if(sscanf(argument_value,"%f",&vert_offset)!=1)
+                if(sscanf(argument_value, "%f", &vert_offset) != 1)
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: Vertical offset must be FLOAT\n");
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 } 
-                else if(vert_offset<lower_limit || vert_offset>upper_limit)                //check if average is in valid range (-5 to 5)
+                else if(vert_offset < LOWER_LIMIT_VOLTAGE || vert_offset > UPPER_LIMIT_VOLTAGE)                //check if average is in valid range (-5 to 5)
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: Invalid vert_offset\n");
-                    printf("vert_offset must be between %.0f and %.0f\n",lower_limit,upper_limit);
+                    printf("vert_offset must be between %.0f and %.0f\n", LOWER_LIMIT_VOLTAGE, UPPER_LIMIT_VOLTAGE);
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 }    
                 break;
                     
             case('t'):  
-                if(sscanf(argument_value,"%d",&wave_type)!=1)   //parse wave type and check whether it is of correct data type
+                if(sscanf(argument_value, "%d", &wave_type) != 1)   //parse wave type and check whether it is of correct data type
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: wave type must be INT (0,1,2,3)\n");
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 }
-            else if(wave_type!=1 && wave_type!=2 && wave_type!=3 && wave_type!=0)   //check if wave type value is valid
+            else if(wave_type != 1 && wave_type != 2 && wave_type !=3 && wave_type!=0)   //check if wave type value is valid
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: Invalid input\n");

@@ -5,13 +5,11 @@
 #include "waveform.h"
 #include "input.h"
 #include "PCI_init.h"
-float lower_limit;
-float upper_limit;
-float increment;
+// float lower_limit;
+// float upper_limit;
+// float increment;
 #else
-float lower_limit = -5;
-float upper_limit = 5;
-float increment = 0.1;
+
 int wave_type = 0;
 int prev_wave_type = 0;
 int current_wave_type = 0;
@@ -267,14 +265,14 @@ void* DisplayTUI(void* args) {
           }
           break;
         case KEY_UP:
-          vert_offset += increment;
-          if (vert_offset >= upper_limit) vert_offset = upper_limit;
+          vert_offset += VERT_OFFSET_INCREMENT;
+          if (vert_offset >= UPPER_LIMIT_VOLTAGE) vert_offset = UPPER_LIMIT_VOLTAGE;
           current_vert_offset = vert_offset;
 
           break;
         case KEY_DOWN:
-          vert_offset -= increment;
-          if (vert_offset <= lower_limit) vert_offset = lower_limit;
+          vert_offset -= VERT_OFFSET_INCREMENT;
+          if (vert_offset <= LOWER_LIMIT_VOLTAGE) vert_offset = LOWER_LIMIT_VOLTAGE;
           current_vert_offset = vert_offset;
 
           break;
