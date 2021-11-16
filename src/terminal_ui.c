@@ -114,7 +114,7 @@ void* DisplayTUI(void* args) {
             "4 Digital LEDS  : Corresponds to switch state");
   mvwprintw(win_description, 11, 2, "L/R arrow keys : Wave selector");
   mvwprintw(win_description, 12, 2,
-            "U/D arrow keys : Vertical offset (-5 to 5 V)");
+            "U/D arrow keys : Y-offset (-5 to 5 V)");
 
   wattroff(win_description, A_BOLD);
   wrefresh(stdscr);
@@ -245,7 +245,7 @@ void* DisplayTUI(void* args) {
                       "4 Digital LEDS  : Corresponds to switch state");
             mvwprintw(win_description, 11, 2, "L/R arrow keys : Wave selector");
             mvwprintw(win_description, 12, 2,
-                      "U/D arrow keys : Vertical offset (-5 to 5 V)");
+                      "U/D arrow keys : Y-offset (-5 to 5 V)");
 
             wattroff(win_description, A_BOLD);
             wrefresh(stdscr);
@@ -580,19 +580,19 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   //   wattron(win, A_STANDOUT);
   wattron(win, COLOR_PAIR(MAIN_TEXT_COLOUR));
   // period = 1 / frequency;
-  mvwprintw(win, 2, 2, "Amplitude       :        V");
+  mvwprintw(win, 2, 2, "Amplitude    :        V");
   //   wattron(win, COLOR_PAIR(3));
-  mvwprintw(win, 3, 2, "Frequency       :        Hz");
+  mvwprintw(win, 3, 2, "Frequency    :        Hz");
   //   wattron(win, COLOR_PAIR(4));
-  mvwprintw(win, 4, 2, "Period          :        ms");
-  mvwprintw(win, 5, 2, "Vertical Offset :        V");
+  mvwprintw(win, 4, 2, "Period       :        ms");
+  mvwprintw(win, 5, 2, "Y-offset     :        V");
 
   //   wattroff(win, A_STANDOUT);
   //   wattron(win, COLOR_PAIR(6));
-  mvwprintw(win, 2, 20, "%.2f ", amplitude);
-  mvwprintw(win, 3, 20, "%.2f ", frequency);
-  mvwprintw(win, 4, 20, "%.2f ", period);
-  mvwprintw(win, 5, 20, "%.2f ", vertical_offset);
+  mvwprintw(win, 2, 17, "%.2f ", amplitude);
+  mvwprintw(win, 3, 17, "%.2f ", frequency);
+  mvwprintw(win, 4, 17, "%.2f ", period);
+  mvwprintw(win, 5, 17, "%.2f ", vertical_offset);
   wattroff(win, A_BOLD);
 }
 
