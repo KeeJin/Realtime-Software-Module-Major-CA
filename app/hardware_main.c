@@ -35,7 +35,9 @@ void signal_handler( int signum)  //Ctrl+c handler
 {
     //kill ncurses input as well
     pthread_cancel(arrow_input_thread_ID);
-    wave_type = 4;
+    pthread_mutex_lock(&mutex_wave_type);
+    wave_type = ZERO;
+    pthread_mutex_unlock(&mutex_wave_type);
     delay(period*100);
 	pthread_cancel(waveform_thread_ID);
 	#if PCI
@@ -129,7 +131,7 @@ int main(int argc, char * argv[])
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 }
-            else if(wave_type!=1 && wave_type!=2 && wave_type!=3 && wave_type!=0)   //check if wave type value is valid
+            else if(wave_type!=SINE && wave_type!=SQUARE && wave_type!=SAWTOOTH && wave_type!=TRIANGULAR)   //check if wave type value is valid
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: Invalid input\n");

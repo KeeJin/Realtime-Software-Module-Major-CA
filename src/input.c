@@ -164,7 +164,11 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
             fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",current_wave_type,current_amplitude,current_period,current_vert_offset,duty_cycle);
             fclose(fp);
             pci_detach_device(hdl);
-            wave_type = 4;
+
+            pthread_mutex_lock(&mutex_wave_type);
+            wave_type = ZERO;
+            pthread_mutex_unlock(&mutex_wave_type);
+            
             delay(period);
             pthread_cancel(waveform_thread_ID);
             #if PCI

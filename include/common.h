@@ -23,6 +23,7 @@ float vertical_offset;
 int time_period_ms;
 extern pthread_mutex_t mutex_common;
 extern pthread_mutex_t mutex_vertical_offset;
+extern pthread_mutex_t mutex_wave_type;
 /* ---------------------------------------------------------------------------- */
 
 #endif /* COMMON */

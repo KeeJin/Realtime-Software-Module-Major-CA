@@ -17,6 +17,9 @@ int j;
 char colon = ':';
 char argument;
 char* argument_value;
+pthread_mutex_t mutex_common;
+pthread_mutex_t mutex_vertical_offset;
+pthread_mutex_t mutex_wave_type;
 
 // variable for file logging
 // variables for finding the duration that the program runs
@@ -43,7 +46,9 @@ void signal_handler(int signum)  // Ctrl+c handler
   pci_detach_device(hdl);
   printf("Ending program...\n");
   printf("Resetting hardware...\n");
+  pthread_mutex_lock(&mutex_wave_type);
   wave_type = ZERO;
+  pthread_mutex_unlock(&mutex_wave_type);
   delay(period);
   pthread_cancel(waveform_thread_ID);
 #if PCI
@@ -147,8 +152,8 @@ int main(int argc, char* argv[]) {
           printf("ERR: wave type must be INT (0,1,2,3)\n");
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
-        } else if (wave_type != 1 && wave_type != 2 && wave_type != 3 &&
-                   wave_type != 0)  // check if wave type value is valid
+        } else if (wave_type != SQUARE && wave_type != TRIANGULAR && wave_type != SAWTOOTH &&
+                   wave_type != SINE)  // check if wave type value is valid
         {
           printf("\n*******************************************************\n");
           printf("ERR: Invalid input\n");

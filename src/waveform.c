@@ -253,10 +253,13 @@ void *waveform_thread(
 
   while (1) {
     pthread_mutex_lock(&mutex_common);
-    wave_type_local = wave_type;
     amplitude_local = amplitude;
     period_local = period;
     pthread_mutex_unlock(&mutex_common);
+
+    pthread_mutex_lock(&mutex_wave_type);
+    wave_type_local = wave_type;
+    pthread_mutex_unlock(&mutex_wave_type);
 
     // MUTEX LOCK HERE
     dio_switch_local = dio_switch;
@@ -269,7 +272,7 @@ void *waveform_thread(
     pthread_mutex_unlock(&mutex_vertical_offset);
     
     if (switch3_value(dio_switch)) {
-      switch (wave_type) {
+      switch (wave_type_local) {
         case (SINE):  // sine
           sine_wave(dio_switch_local, wave_type_local, amplitude_local,
                     period_local, vert_offset_local, duty_cycle_local,
