@@ -21,7 +21,8 @@ float amplitude;
 float period;  //period in milliseconds
 float vertical_offset;
 int time_period_ms;
-extern pthread_mutex_t mutex;
+extern pthread_mutex_t mutex_common;
+extern pthread_mutex_t mutex_vertical_offset;
 /* ---------------------------------------------------------------------------- */
 
 #endif /* COMMON */

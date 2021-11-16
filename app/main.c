@@ -188,9 +188,9 @@ int main(int argc, char* argv[]) {
   fclose(fp);
 
   /* ------------------- Adjustable params ------------------- */
-  //  pthread_mutex_lock(&mutex);
+   pthread_mutex_lock(&mutex_common);
   time_period_ms = 50;
-  // pthread_mutex_unlock(&mutex);
+  pthread_mutex_unlock(&mutex_common);
   /* ---------------------------------------------------------- */
 
   /* ----- Initialize and set thread detached attribute ------- */

@@ -4,7 +4,8 @@
 #include <stdlib.h>
 
 
-pthread_mutex_t mutex;
+pthread_mutex_t mutex_common;
+pthread_mutex_t mutex_vertical_offset;
 
 int main(void) {
   pthread_t display_thread;
@@ -14,13 +15,16 @@ int main(void) {
   void* status;
 
   /* ------------------- Adjustable params ------------------- */
-  // pthread_mutex_lock(&mutex);
+  pthread_mutex_lock(&mutex_common);
   time_period_ms = 100;
   wave_type = SINE;
   amplitude = 3.0;
   period = 50.0;
+  pthread_mutex_unlock(&mutex_common);
+
+  pthread_mutex_lock(&mutex_vertical_offset);
   vertical_offset = 0.0;
-  // pthread_mutex_unlock(&mutex);
+  pthread_mutex_unlock(&mutex_vertical_offset);
   /* ---------------------------------------------------------- */
 
   /* ----- Initialize and set thread detached attribute ------- */

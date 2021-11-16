@@ -1,6 +1,5 @@
 #include "terminal_ui.h"
 
-
 #if HARDWARE
 #include "waveform.h"
 #include "input.h"
@@ -15,7 +14,6 @@ int dio_switch = 0;
 int switch2_value(int dio_switch) { return 1; }
 int switch3_value(int dio_switch) { return 0; }
 #endif
-
 
 #include <math.h>
 #include <unistd.h>
@@ -36,6 +34,7 @@ void* DisplayTUI(void* args) {
   float amplitude_local;
   float frequency_local;
   float vertical_offset_local;
+  float period_local;
   int time_period_ms_local;
   const char* graph_types_toggle[4];
 
@@ -113,22 +112,25 @@ void* DisplayTUI(void* args) {
   mvwprintw(win_description, 9, 2,
             "4 Digital LEDS  : Corresponds to switch state");
   mvwprintw(win_description, 11, 2, "L/R arrow keys : Wave selector");
-  mvwprintw(win_description, 12, 2,
-            "U/D arrow keys : Y-offset (-5 to 5 V)");
+  mvwprintw(win_description, 12, 2, "U/D arrow keys : Y-offset (-5 to 5 V)");
 
   wattroff(win_description, A_BOLD);
   wrefresh(stdscr);
   wrefresh(win_description);
 
 #endif
-  // pthread_mutex_lock(&mutex);
+  pthread_mutex_lock(&mutex_common);
   graph_type_local = wave_type;
   amplitude_local = amplitude;
+  period_local = period;
   frequency_local = 1 / period * 1000;
-  // frequency = 1 / period * 1000;
-  vertical_offset_local = vertical_offset;
   time_period_ms_local = time_period_ms;
-  // pthread_mutex_unlock(&mutex);
+  pthread_mutex_unlock(&mutex_common);
+
+  pthread_mutex_lock(&mutex_vertical_offset);
+  vertical_offset_local = vertical_offset;
+  pthread_mutex_unlock(&mutex_vertical_offset);
+
   vertical_offset_local =
       vertical_offset_local /
       (0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0)) *
@@ -137,20 +139,24 @@ void* DisplayTUI(void* args) {
       0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
   DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
            vertical_offset_local);
-  PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude,
-            scaled_amplitude, frequency_local, phase_shift, win_wave_plot_height,
-            win_wave_plot_width);
+  PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude_local,
+            scaled_amplitude, frequency_local, phase_shift,
+            win_wave_plot_height, win_wave_plot_width);
 #ifndef DEBUG
   // while (key != 'q') {
   while (1) {
-    // pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&mutex_common);
     graph_type_local = wave_type;
     amplitude_local = amplitude;
-    frequency_local = 1 / period * 1000;
-    // frequency = 1 / period * 1000;
-    vertical_offset_local = vertical_offset;
+    frequency_local = 1.0 / period * 1000.0;
+    period_local = period;
     time_period_ms_local = time_period_ms;
-    //   pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&mutex_common);
+
+    pthread_mutex_lock(&mutex_vertical_offset);
+    vertical_offset_local = vertical_offset;
+    pthread_mutex_unlock(&mutex_vertical_offset);
+
     vertical_offset_local =
         vertical_offset_local /
         (0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0)) *
@@ -158,10 +164,14 @@ void* DisplayTUI(void* args) {
     scaled_amplitude =
         0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
     if (switch2_value(dio_switch)) {
-      if ((vertical_offset == prev_vert_offset) || (wave_type == prev_wave_type))
+      if ((vertical_offset_local == prev_vert_offset) ||
+          (graph_type_local == prev_wave_type))
       // if (0)
       {
+        pthread_mutex_lock(&mutex_vertical_offset);
         vertical_offset = current_vert_offset;
+        pthread_mutex_unlock(&mutex_vertical_offset);
+
         wave_type = current_wave_type;
 
         graph_types_toggle_index = wave_type;
@@ -251,20 +261,26 @@ void* DisplayTUI(void* args) {
             wrefresh(stdscr);
             wrefresh(win_description);
 
-            UpdateStats(win_feedback, scaled_amplitude, frequency_local, vertical_offset);
+            UpdateStats(win_feedback, scaled_amplitude, frequency_local,
+                        vertical_offset_local);
           }
           break;
         case KEY_UP:
+          pthread_mutex_lock(&mutex_vertical_offset);
           vertical_offset += VERT_OFFSET_INCREMENT;
-          if (vertical_offset >= UPPER_LIMIT_VOLTAGE) vertical_offset = UPPER_LIMIT_VOLTAGE;
+          if (vertical_offset >= UPPER_LIMIT_VOLTAGE)
+            vertical_offset = UPPER_LIMIT_VOLTAGE;
           current_vert_offset = vertical_offset;
-
+          pthread_mutex_unlock(&mutex_vertical_offset);
           break;
-        case KEY_DOWN:
-          vertical_offset -= VERT_OFFSET_INCREMENT;
-          if (vertical_offset <= LOWER_LIMIT_VOLTAGE) vertical_offset = LOWER_LIMIT_VOLTAGE;
-          current_vert_offset = vertical_offset;
 
+        case KEY_DOWN:
+          pthread_mutex_lock(&mutex_vertical_offset);
+          vertical_offset -= VERT_OFFSET_INCREMENT;
+          if (vertical_offset <= LOWER_LIMIT_VOLTAGE)
+            vertical_offset = LOWER_LIMIT_VOLTAGE;
+          current_vert_offset = vertical_offset;
+          pthread_mutex_unlock(&mutex_vertical_offset);
           break;
 
         case KEY_LEFT:
@@ -313,7 +329,10 @@ void* DisplayTUI(void* args) {
           break;
       }
     } else {
+      pthread_mutex_lock(&mutex_vertical_offset);
       vertical_offset = prev_vert_offset;
+      pthread_mutex_unlock(&mutex_vertical_offset);
+      
       wave_type = prev_wave_type;
       graph_types_toggle_index = prev_wave_type;
       wclear(win_wave_plot);
@@ -332,13 +351,13 @@ void* DisplayTUI(void* args) {
     WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
     DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
              vertical_offset_local);
-    PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude,
-              scaled_amplitude, frequency_local, phase_shift, win_wave_plot_height,
-              win_wave_plot_width);
+    PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude_local,
+              scaled_amplitude, frequency_local, phase_shift,
+              win_wave_plot_height, win_wave_plot_width);
 
     wrefresh(stdscr);
     wrefresh(win_wave_plot);
-    
+
     wrefresh(win_feedback);
     wrefresh(win_toggle);
     key = getch();
