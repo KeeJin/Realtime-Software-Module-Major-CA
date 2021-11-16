@@ -15,7 +15,6 @@
 
 
 int j;
-float vert_offset;
 char colon=':';
 char argument;
 char* argument_value;
@@ -89,9 +88,9 @@ int main(int argc, char * argv[])
     signal(SIGINT, signal_handler);
     
     //Set Default Values of wave parameters
-    wave_type = 0;    //sine
-    vert_offset = 0;
-    duty_cycle=50; 
+    wave_type = SINE;
+    vertical_offset = 0.0;
+    duty_cycle=50;
 	
 	fp = fopen("savefile.txt","r");
 	if(fp) fscanf(fp,"%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period, &prev_vert_offset, &prev_duty_cycle);
@@ -124,18 +123,18 @@ int main(int argc, char * argv[])
         switch (argument)
         {
             case('v'):                                  //parse average/mean value and check whether it is of correct data type
-                if(sscanf(argument_value, "%f", &vert_offset) != 1)
+                if(sscanf(argument_value, "%f", &vertical_offset) != 1)
                 {
                     printf("\n*******************************************************\n");
                     printf("ERR: Vertical offset must be FLOAT\n");
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 } 
-                else if(vert_offset < LOWER_LIMIT_VOLTAGE || vert_offset > UPPER_LIMIT_VOLTAGE)                //check if average is in valid range (-5 to 5)
+                else if(vertical_offset < LOWER_LIMIT_VOLTAGE || vertical_offset > UPPER_LIMIT_VOLTAGE)                //check if average is in valid range (-5 to 5)
                 {
                     printf("\n*******************************************************\n");
-                    printf("ERR: Invalid vert_offset\n");
-                    printf("vert_offset must be between %.0f and %.0f\n", LOWER_LIMIT_VOLTAGE, UPPER_LIMIT_VOLTAGE);
+                    printf("ERR: Invalid vertical_offset\n");
+                    printf("vertical_offset must be between %.0f and %.0f\n", LOWER_LIMIT_VOLTAGE, UPPER_LIMIT_VOLTAGE);
                     printf("*******************************************************\n");
                     return 0;   //invalid, exit program
                 }    
@@ -192,7 +191,6 @@ int main(int argc, char * argv[])
     time_period_ms = 50;
     graph_type = wave_type;
     frequency = 1/period;
-    vertical_offset = vert_offset;
     phase_shift = 0.0;
     //pthread_mutex_unlock(&mutex);
     /* ---------------------------------------------------------- */

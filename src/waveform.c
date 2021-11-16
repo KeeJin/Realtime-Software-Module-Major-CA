@@ -251,7 +251,7 @@ void *waveform_thread(void *arg)  //thread to generate wave based on wave parame
         wave_type_local = wave_type;
         amplitude_local = amplitude;
         period_local = period;
-        vert_offset_local = vert_offset;
+        vert_offset_local = vertical_offset;
         duty_cycle_local = duty_cycle;
         beeper_local = beeper;
         //MUTEX UNLOCK HERE

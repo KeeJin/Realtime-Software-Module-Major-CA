@@ -5,16 +5,12 @@
 #include "waveform.h"
 #include "input.h"
 #include "PCI_init.h"
-// float lower_limit;
-// float upper_limit;
-// float increment;
 #else
 
 int wave_type = 0;
 int prev_wave_type = 0;
 int current_wave_type = 0;
 float period = 50;
-float vert_offset = 0;
 float prev_vert_offset = 0;
 float current_vert_offset = 0;
 int dio_switch = 0;
@@ -132,7 +128,7 @@ void* DisplayTUI(void* args) {
   amplitude_local = amplitude;
   frequency_local = 1 / period * 1000;
   frequency = 1 / period * 1000;
-  vertical_offset_local = vert_offset;
+  vertical_offset_local = vertical_offset;
   phase_shift_local = phase_shift;
   time_period_ms_local = time_period_ms;
   // pthread_mutex_unlock(&mutex);
@@ -155,7 +151,7 @@ void* DisplayTUI(void* args) {
     amplitude_local = amplitude;
     frequency_local = 1 / period * 1000;
     frequency = 1 / period * 1000;
-    vertical_offset_local = vert_offset;
+    vertical_offset_local = vertical_offset;
     phase_shift_local = phase_shift;
     time_period_ms_local = time_period_ms;
     //   pthread_mutex_unlock(&mutex);
@@ -166,10 +162,10 @@ void* DisplayTUI(void* args) {
     scaled_amplitude =
         0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
     if (switch2_value(dio_switch)) {
-      if ((vert_offset == prev_vert_offset) || (wave_type == prev_wave_type))
+      if ((vertical_offset == prev_vert_offset) || (wave_type == prev_wave_type))
       // if (0)
       {
-        vert_offset = current_vert_offset;
+        vertical_offset = current_vert_offset;
         wave_type = current_wave_type;
         graph_type = wave_type;
 
@@ -179,7 +175,7 @@ void* DisplayTUI(void* args) {
          amplitude_local = amplitude;
          frequency_local = 1/period*1000;
              frequency = 1/period*1000;
-         vertical_offset_local = vert_offset;
+         vertical_offset_local = vertical_offset;
          phase_shift_local = phase_shift;
          time_period_ms_local = time_period_ms;*/
 
@@ -261,19 +257,19 @@ void* DisplayTUI(void* args) {
             wrefresh(stdscr);
             wrefresh(win_description);
 
-            UpdateStats(win_feedback, scaled_amplitude, frequency, vert_offset);
+            UpdateStats(win_feedback, scaled_amplitude, frequency, vertical_offset);
           }
           break;
         case KEY_UP:
-          vert_offset += VERT_OFFSET_INCREMENT;
-          if (vert_offset >= UPPER_LIMIT_VOLTAGE) vert_offset = UPPER_LIMIT_VOLTAGE;
-          current_vert_offset = vert_offset;
+          vertical_offset += VERT_OFFSET_INCREMENT;
+          if (vertical_offset >= UPPER_LIMIT_VOLTAGE) vertical_offset = UPPER_LIMIT_VOLTAGE;
+          current_vert_offset = vertical_offset;
 
           break;
         case KEY_DOWN:
-          vert_offset -= VERT_OFFSET_INCREMENT;
-          if (vert_offset <= LOWER_LIMIT_VOLTAGE) vert_offset = LOWER_LIMIT_VOLTAGE;
-          current_vert_offset = vert_offset;
+          vertical_offset -= VERT_OFFSET_INCREMENT;
+          if (vertical_offset <= LOWER_LIMIT_VOLTAGE) vertical_offset = LOWER_LIMIT_VOLTAGE;
+          current_vert_offset = vertical_offset;
 
           break;
 
@@ -325,7 +321,7 @@ void* DisplayTUI(void* args) {
           break;
       }
     } else {
-      vert_offset = prev_vert_offset;
+      vertical_offset = prev_vert_offset;
       wave_type = prev_wave_type;
       graph_types_toggle_index = prev_wave_type;
       graph_type = graph_types_toggle_index;
@@ -575,7 +571,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, GraphType type,
     }
   }
 
-  UpdateStats(win_feedback, amplitude, frequency, vert_offset);
+  UpdateStats(win_feedback, amplitude, frequency, vertical_offset);
 }
 
 void PlotPoint(WINDOW* win, int x, int y) {
@@ -605,7 +601,7 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   mvwprintw(win, 2, 20, "%.2f ", amplitude);
   mvwprintw(win, 3, 20, "%.2f ", frequency);
   mvwprintw(win, 4, 20, "%.2f ", period);
-  mvwprintw(win, 5, 20, "%.2f ", vert_offset);
+  mvwprintw(win, 5, 20, "%.2f ", vertical_offset);
   wattroff(win, A_BOLD);
 }
 
