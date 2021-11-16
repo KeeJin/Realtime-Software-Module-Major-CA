@@ -2,7 +2,7 @@
 #define TERMINAL_UI
 
 #include <ncurses.h>
-#include "input.h"
+#include "common.h"
 
 #define BASE_DELAY 1000
 #define MAIN_TEXT_COLOUR 6

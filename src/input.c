@@ -35,8 +35,6 @@ int pot_res = 65536;
 
 //int pot_res = 32768;
 
-pthread_mutex_t mutex;
-
 
 void read_potentiometer() //function to read potentiometers
 {

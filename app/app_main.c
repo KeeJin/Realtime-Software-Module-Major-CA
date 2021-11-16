@@ -3,6 +3,9 @@
 // #include <stdio.h>
 #include <stdlib.h>
 
+
+pthread_mutex_t mutex;
+
 int main(void) {
   pthread_t display_thread;
   pthread_attr_t attr;
