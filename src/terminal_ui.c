@@ -177,13 +177,13 @@ void* DisplayTUI(void* args) {
     	
     graph_types_toggle_index = wave_type;
   
-    graph_type_local = wave_type;
+    graph_type_local = wave_type;/*
     amplitude_local = amplitude;
     frequency_local = 1/period*1000;
  	frequency = 1/period*1000;
     vertical_offset_local = vert_offset;
     phase_shift_local = phase_shift;
-    time_period_ms_local = time_period_ms;
+    time_period_ms_local = time_period_ms;*/
 
         wclear(win_wave_plot);
         wclear(win_toggle);
@@ -568,19 +568,19 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency, float vert_offse
   //   wattron(win, A_STANDOUT);
   wattron(win, COLOR_PAIR(MAIN_TEXT_COLOUR));
   //period = 1 / frequency;
-  mvwprintw(win, 2, 2, "Amplitude       : ");
+  mvwprintw(win, 2, 2, "Amplitude       :        V");
   //   wattron(win, COLOR_PAIR(3));
-  mvwprintw(win, 3, 2, "Frequency       : ");
+  mvwprintw(win, 3, 2, "Frequency       :        Hz");
   //   wattron(win, COLOR_PAIR(4));
-  mvwprintw(win, 4, 2, "Period          : ");
-  mvwprintw(win, 5, 2, "Vertical Offset : ");
+  mvwprintw(win, 4, 2, "Period          :        ms");
+  mvwprintw(win, 5, 2, "Vertical Offset :        V");
 
   //   wattroff(win, A_STANDOUT);
   //   wattron(win, COLOR_PAIR(6));
-  mvwprintw(win, 2, 20, "%.2f V", amplitude);
-  mvwprintw(win, 3, 20, "%.2f Hz", frequency);
-  mvwprintw(win, 4, 20, "%.2f ms", period);
-  mvwprintw(win, 5, 20, "%.2f V", vert_offset);
+  mvwprintw(win, 2, 20, "%.2f ", amplitude);
+  mvwprintw(win, 3, 20, "%.2f ", frequency);
+  mvwprintw(win, 4, 20, "%.2f ", period);
+  mvwprintw(win, 5, 20, "%.2f ", vert_offset);
   wattroff(win, A_BOLD);
 }
 

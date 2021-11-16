@@ -12,7 +12,7 @@
 #include <sys/mman.h>
 #include <math.h>
 
-#define PCIe		0		// 0: PCI 1: PCIe 
+#define PCIe		1		// 0: PCI 1: PCIe 
 #define PCI 		!PCIe
 
 // ********************************************************************

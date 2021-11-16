@@ -24,7 +24,7 @@ pthread_t DisplayTUI_ID;
 
 int beeper;
 
-/*
+
 #if PCI
 int pot_res = 32768;
 #endif
@@ -32,8 +32,8 @@ int pot_res = 32768;
 #if PCIe
 int pot_res = 65536;
 #endif
-*/
-int pot_res = 32768;
+
+//int pot_res = 32768;
 
 
 
@@ -156,6 +156,13 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
             printf("Ending program...\n");
             printf("Resetting hardware...\n");
             fp = fopen("savefile.txt","w");
+            if(current_period == 0)
+            {   
+                current_wave_type = prev_wave_type;
+                current_amplitude = prev_amplitude;
+                current_period = prev_period;
+                current_vert_offset = prev_vert_offset;
+            }
             fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",current_wave_type,current_amplitude,current_period,current_vert_offset,duty_cycle);
             fclose(fp);
             pci_detach_device(hdl);
