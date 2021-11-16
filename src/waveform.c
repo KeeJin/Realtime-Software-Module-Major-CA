@@ -233,19 +233,19 @@ void *waveform_thread(void *arg)  //thread to generate wave based on wave parame
         {
             switch(wave_type)
             {
-                case(0):    //sine
+                case(SINE):    //sine
                     sine_wave();
                     break;
-                case(1):    //square
+                case(SQUARE):    //square
                     square_wave();
                     break;
-                case(2):    //triangular
+                case(TRIANGULAR):    //triangular
                     triangular_wave();
                     break;
-                case(3):    //sawtooth
+                case(SAWTOOTH):    //sawtooth
                     sawtooth_wave();
                     break;
-                case(4):    //zero voltage
+                case(ZERO):    //zero voltage
                     zero_signal();
                     break;
                 default:

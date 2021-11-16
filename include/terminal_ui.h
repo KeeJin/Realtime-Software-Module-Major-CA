@@ -3,28 +3,12 @@
 
 #include <ncurses.h>
 #include <pthread.h>
+#include "input.h"
 
 #define BASE_DELAY 1000
 #define MAIN_TEXT_COLOUR 6
 
 #define HARDWARE 1 //0: without hardware; 1: with hardware 
-
-typedef enum _graphType {
-  SINE = 0,
-  SQUARE = 1,
-  TRIANGULAR = 2,
-  SAWTOOTH = 3
-} GraphType;
-
-/* ----------------------------- Global params -------------------------------- */
-GraphType graph_type;
-float amplitude;
-float frequency;
-float phase_shift;
-float vertical_offset;
-int time_period_ms;
-extern pthread_mutex_t mutex;
-/* ---------------------------------------------------------------------------- */
 
 /* ------------------------------- Functions ---------------------------------- */
 void* DisplayTUI(void* arg);  // drawing thread
