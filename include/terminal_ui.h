@@ -11,7 +11,7 @@
 
 /* ------------------------------- Functions ---------------------------------- */
 void* DisplayTUI(void* arg);  // drawing thread
-void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, GraphType type,
+void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
                float amplitude, float scaled_amplitude, float frequency,
                float phase_shift, int win_wave_plot_height,
                int win_wave_plot_width);

@@ -19,7 +19,7 @@ int N=50; //number of "cuts" to make wave
 
 
 
-void sine_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper) //sine wave function
+void sine_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper) //sine wave function
 {
     int beeping = 1; //to allow for only 1 beep per peak (for sine)
     while( (wave_type==0) && (switch3_value(dio_switch)) )         //stops if wave_type is not 1 (sine)
@@ -64,7 +64,7 @@ void sine_wave(uintptr_t dio_switch, int wave_type, float amplitude, float perio
 }
 
 
-void square_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper) //square wave function
+void square_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper) //square wave function
 {
     while((wave_type==1)  && (switch3_value(dio_switch)))     //stops if wave_type is not 2 (square)
     {
@@ -115,7 +115,7 @@ void square_wave(uintptr_t dio_switch, int wave_type, float amplitude, float per
 }
 
 
-void triangular_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
+void triangular_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
 {
     while((wave_type==2) && (switch3_value(dio_switch)))     //stops if wave_type is not 3 (triangular)
     {
@@ -162,7 +162,7 @@ void triangular_wave(uintptr_t dio_switch, int wave_type, float amplitude, float
         printf("\n");
     }
 }
-void sawtooth_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
+void sawtooth_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
 {
     while((wave_type==3) && (switch3_value(dio_switch)))     //stops if wave_type is not 3 (triangular)
     {
@@ -190,7 +190,7 @@ void sawtooth_wave(uintptr_t dio_switch, int wave_type, float amplitude, float p
     }    //sawtooth wave here
 }
 
-void zero_signal(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
+void zero_signal(uintptr_t dio_switch, WaveType wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
 {
     #if PCI
     //data= (5 + vert_offset)/10* 0xFFFF;                       

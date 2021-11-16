@@ -7,16 +7,16 @@
 #define UPPER_LIMIT_VOLTAGE 5.0f
 #define VERT_OFFSET_INCREMENT 0.1f
 
-typedef enum _graphType {
+typedef enum _waveType {
   SINE = 0,
   SQUARE = 1,
   TRIANGULAR = 2,
   SAWTOOTH = 3,
   ZERO = 4
-} GraphType;
+} WaveType;
 
 /* ----------------------------- Global params -------------------------------- */
-GraphType graph_type;
+WaveType wave_type;
 float amplitude;
 float frequency;
 float phase_shift;

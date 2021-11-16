@@ -16,7 +16,7 @@ int main(void) {
   /* ------------------- Adjustable params ------------------- */
   pthread_mutex_lock(&mutex);
   time_period_ms = 100;
-  graph_type = SINE;
+  wave_type = SINE;
   amplitude = 3.0;
   frequency = 5.0;
   vertical_offset = -2.0;

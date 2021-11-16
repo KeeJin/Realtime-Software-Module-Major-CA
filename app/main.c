@@ -189,8 +189,7 @@ int main(int argc, char * argv[])
     /* ------------------- Adjustable params ------------------- */
   //  pthread_mutex_lock(&mutex);
     time_period_ms = 50;
-    graph_type = wave_type;
-    frequency = 1/period;
+    frequency = 1.0/period;
     phase_shift = 0.0;
     //pthread_mutex_unlock(&mutex);
     /* ---------------------------------------------------------- */

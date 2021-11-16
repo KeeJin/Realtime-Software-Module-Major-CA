@@ -7,7 +7,6 @@
 #include "PCI_init.h"
 #else
 
-int wave_type = 0;
 int prev_wave_type = 0;
 int current_wave_type = 0;
 float period = 50;
@@ -34,7 +33,7 @@ void* DisplayTUI(void* args) {
   int x_padding, y_padding, key;
   int graph_types_toggle_index = wave_type;
   float scaled_amplitude;
-  GraphType graph_type_local;
+  WaveType graph_type_local;
   float amplitude_local;
   float frequency_local;
   float phase_shift_local;
@@ -140,7 +139,7 @@ void* DisplayTUI(void* args) {
       0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
   DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
            vertical_offset_local);
-  PlotGraph(win_wave_plot, win_feedback, graph_type, amplitude,
+  PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude,
             scaled_amplitude, frequency, phase_shift, win_wave_plot_height,
             win_wave_plot_width);
 #ifndef DEBUG
@@ -167,7 +166,6 @@ void* DisplayTUI(void* args) {
       {
         vertical_offset = current_vert_offset;
         wave_type = current_wave_type;
-        graph_type = wave_type;
 
         graph_types_toggle_index = wave_type;
 
@@ -279,7 +277,6 @@ void* DisplayTUI(void* args) {
           } else {
             graph_types_toggle_index--;
           }
-          graph_type = graph_types_toggle_index;
           wave_type = graph_types_toggle_index;
           current_wave_type = wave_type;
           wclear(win_wave_plot);
@@ -301,7 +298,6 @@ void* DisplayTUI(void* args) {
           } else {
             graph_types_toggle_index++;
           }
-          graph_type = graph_types_toggle_index;
           wave_type = graph_types_toggle_index;
           current_wave_type = wave_type;
           wclear(win_wave_plot);
@@ -324,7 +320,6 @@ void* DisplayTUI(void* args) {
       vertical_offset = prev_vert_offset;
       wave_type = prev_wave_type;
       graph_types_toggle_index = prev_wave_type;
-      graph_type = graph_types_toggle_index;
       wclear(win_wave_plot);
       wclear(win_toggle);
       DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
@@ -341,7 +336,7 @@ void* DisplayTUI(void* args) {
     WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
     DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
              vertical_offset_local);
-    PlotGraph(win_wave_plot, win_feedback, graph_type, amplitude,
+    PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude,
               scaled_amplitude, frequency, phase_shift, win_wave_plot_height,
               win_wave_plot_width);
 
@@ -388,7 +383,7 @@ void DrawAxes(WINDOW* win, int win_wave_plot_height, int win_wave_plot_width,
             win_wave_plot_width - 3, ">");
 }
 
-void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, GraphType type,
+void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
                float amplitude, float scaled_amplitude, float frequency,
                float phase_shift, int win_wave_plot_height,
                int win_wave_plot_width) {
