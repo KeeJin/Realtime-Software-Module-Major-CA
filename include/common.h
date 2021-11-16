@@ -18,7 +18,7 @@ typedef enum _waveType {
 /* ----------------------------- Global params -------------------------------- */
 WaveType wave_type;
 float amplitude;
-float frequency;
+float period;  //period in milliseconds
 float phase_shift;
 float vertical_offset;
 int time_period_ms;

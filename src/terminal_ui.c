@@ -9,7 +9,6 @@
 
 int prev_wave_type = 0;
 int current_wave_type = 0;
-float period = 50;
 float prev_vert_offset = 0;
 float current_vert_offset = 0;
 int dio_switch = 0;
@@ -126,7 +125,7 @@ void* DisplayTUI(void* args) {
   graph_type_local = wave_type;
   amplitude_local = amplitude;
   frequency_local = 1 / period * 1000;
-  frequency = 1 / period * 1000;
+  // frequency = 1 / period * 1000;
   vertical_offset_local = vertical_offset;
   phase_shift_local = phase_shift;
   time_period_ms_local = time_period_ms;
@@ -140,7 +139,7 @@ void* DisplayTUI(void* args) {
   DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
            vertical_offset_local);
   PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude,
-            scaled_amplitude, frequency, phase_shift, win_wave_plot_height,
+            scaled_amplitude, frequency_local, phase_shift, win_wave_plot_height,
             win_wave_plot_width);
 #ifndef DEBUG
   // while (key != 'q') {
@@ -149,7 +148,7 @@ void* DisplayTUI(void* args) {
     graph_type_local = wave_type;
     amplitude_local = amplitude;
     frequency_local = 1 / period * 1000;
-    frequency = 1 / period * 1000;
+    // frequency = 1 / period * 1000;
     vertical_offset_local = vertical_offset;
     phase_shift_local = phase_shift;
     time_period_ms_local = time_period_ms;
@@ -255,7 +254,7 @@ void* DisplayTUI(void* args) {
             wrefresh(stdscr);
             wrefresh(win_description);
 
-            UpdateStats(win_feedback, scaled_amplitude, frequency, vertical_offset);
+            UpdateStats(win_feedback, scaled_amplitude, frequency_local, vertical_offset);
           }
           break;
         case KEY_UP:
@@ -337,7 +336,7 @@ void* DisplayTUI(void* args) {
     DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
              vertical_offset_local);
     PlotGraph(win_wave_plot, win_feedback, wave_type, amplitude,
-              scaled_amplitude, frequency, phase_shift, win_wave_plot_height,
+              scaled_amplitude, frequency_local, phase_shift, win_wave_plot_height,
               win_wave_plot_width);
 
     wrefresh(stdscr);
