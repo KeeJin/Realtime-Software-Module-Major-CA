@@ -31,7 +31,6 @@ float lower_limit;
 float upper_limit;
 float increment;
 int beeper;
-pthread_mutex_t mutex;
 
 void* DisplayTUI(void* args) {
   WINDOW* win_wave_plot;

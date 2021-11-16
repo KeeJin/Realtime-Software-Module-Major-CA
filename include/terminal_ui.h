@@ -2,7 +2,6 @@
 #define TERMINAL_UI
 
 #include <ncurses.h>
-#include <pthread.h>
 #include "input.h"
 
 #define BASE_DELAY 1000

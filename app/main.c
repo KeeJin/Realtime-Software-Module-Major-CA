@@ -98,8 +98,15 @@ int main(int argc, char * argv[])
     duty_cycle=50; 
 	
 	fp = fopen("savefile.txt","r");
-	fscanf(fp,"%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period, &prev_vert_offset, &prev_duty_cycle);
-
+	if(fp) fscanf(fp,"%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period, &prev_vert_offset, &prev_duty_cycle);
+	else
+	{
+		 prev_wave_type = 0; 
+		 prev_amplitude = 5;
+		 prev_period = 50;
+		 prev_vert_offset = 0;
+		 prev_duty_cycle = 50;
+	}
     //command line argument(s)
     for(j=1;j<argc;j++)
     {

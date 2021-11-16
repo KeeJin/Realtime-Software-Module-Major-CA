@@ -3,6 +3,7 @@
 #ifndef __INPUT_H
 #define __INPUT_H
 
+#include <pthread.h>
 typedef enum _graphType {
   SINE = 0,
   SQUARE = 1,
