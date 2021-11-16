@@ -19,8 +19,7 @@ int main(void) {
   wave_type = SINE;
   amplitude = 3.0;
   period = 50.0;
-  vertical_offset = -2.0;
-  phase_shift = 0.0;
+  vertical_offset = 0.0;
   // pthread_mutex_unlock(&mutex);
   /* ---------------------------------------------------------- */
 

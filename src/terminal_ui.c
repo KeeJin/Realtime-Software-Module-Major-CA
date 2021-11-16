@@ -31,11 +31,10 @@ void* DisplayTUI(void* args) {
   int win_panel_height, win_panel_width;
   int x_padding, y_padding, key;
   int graph_types_toggle_index = wave_type;
-  float scaled_amplitude;
+  float scaled_amplitude, phase_shift;
   WaveType graph_type_local;
   float amplitude_local;
   float frequency_local;
-  float phase_shift_local;
   float vertical_offset_local;
   int time_period_ms_local;
   const char* graph_types_toggle[4];
@@ -71,6 +70,7 @@ void* DisplayTUI(void* args) {
   win_wave_plot_width = cached_x_max - (2 * x_padding);
   win_panel_height = cached_y_max * 4 / 11 - 1;
   win_panel_width = win_wave_plot_width / 3;
+  phase_shift = 0.0;
 
 #ifndef DEBUG
   // Initialise windows
@@ -127,7 +127,6 @@ void* DisplayTUI(void* args) {
   frequency_local = 1 / period * 1000;
   // frequency = 1 / period * 1000;
   vertical_offset_local = vertical_offset;
-  phase_shift_local = phase_shift;
   time_period_ms_local = time_period_ms;
   // pthread_mutex_unlock(&mutex);
   vertical_offset_local =
@@ -150,7 +149,6 @@ void* DisplayTUI(void* args) {
     frequency_local = 1 / period * 1000;
     // frequency = 1 / period * 1000;
     vertical_offset_local = vertical_offset;
-    phase_shift_local = phase_shift;
     time_period_ms_local = time_period_ms;
     //   pthread_mutex_unlock(&mutex);
     vertical_offset_local =
@@ -173,7 +171,6 @@ void* DisplayTUI(void* args) {
          frequency_local = 1/period*1000;
              frequency = 1/period*1000;
          vertical_offset_local = vertical_offset;
-         phase_shift_local = phase_shift;
          time_period_ms_local = time_period_ms;*/
 
         wclear(win_wave_plot);
