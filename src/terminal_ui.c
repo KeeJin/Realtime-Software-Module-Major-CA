@@ -5,7 +5,13 @@
 #include "waveform.h"
 #include "input.h"
 #include "PCI_init.h"
+float lower_limit;
+float upper_limit;
+float increment;
 #else
+float lower_limit = -5;
+float upper_limit = 5;
+float increment = 0.1;
 int wave_type = 0;
 int prev_wave_type = 0;
 int current_wave_type = 0;
@@ -27,9 +33,6 @@ int switch3_value(int dio_switch)
 
 #include <math.h>
 #include <unistd.h>
-float lower_limit;
-float upper_limit;
-float increment;
 int beeper;
 
 void* DisplayTUI(void* args) {
@@ -332,6 +335,7 @@ void* DisplayTUI(void* args) {
     wrefresh(win_feedback);
     wrefresh(win_toggle);
     key = getch();
+    while (getch() != ERR);
     phase_shift += 1.0;
     if (phase_shift*period >= (float)win_wave_plot_width*25) {
       phase_shift = 0.0;
@@ -341,6 +345,7 @@ void* DisplayTUI(void* args) {
       	printf("\n");
       }
     }
+    //if (getch() == ERR) usleep(time_period_ms * BASE_DELAY);
     usleep(time_period_ms * BASE_DELAY);
   }
 
