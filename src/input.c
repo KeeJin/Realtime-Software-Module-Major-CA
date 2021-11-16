@@ -167,7 +167,7 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
             fclose(fp);
             pci_detach_device(hdl);
             wave_type = 4;
-            delay(period*100);
+            delay(period);
             pthread_cancel(waveform_thread_ID);
             #if PCI
             out8(DIO_PORTB,0);

@@ -51,7 +51,7 @@ void signal_handler( int signum)  //Ctrl+c handler
     printf("Ending program...\n");
     printf("Resetting hardware...\n");
     wave_type = 4;
-    delay(period*100);
+    delay(period);
 	pthread_cancel(waveform_thread_ID);
 	#if PCI
 	out8(DIO_PORTB,0);

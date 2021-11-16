@@ -26,7 +26,8 @@ void sine_wave() //sine wave function
     while( (wave_type==0) && (switch3_value(dio_switch)) )         //stops if wave_type is not 1 (sine)
     {
         for(i=0;i<N;i++) 
-        {
+        {   
+            if ( !(wave_type==0) || !(switch3_value(dio_switch)) ) return; 
             #if PCI
             data=( ( ( sinf((float)(i*2*3.1415/N))*amplitude)+10+vert_offset)/20.0  * 0xFFFF ); //send code here 
 	        out16(DA_CTLREG,0x0923);			// DA Enable, #0, #1, SW 10V bipolar		2/6
@@ -83,7 +84,11 @@ void square_wave() //square wave function
 	    out16(DAC0_Data, data);
         #endif
 
-        delay((int)N*(int)period*duty_cycle/100);
+        for(i=0;i<N*duty_cycle/100;i++)
+        {
+            if ( !(wave_type==1) || !(switch3_value(dio_switch)) ) return; 
+            delay((int)period);
+        }
 
         if(beeper) putchar(7);
         printf("\n"); //beeps at first time wave reaches low for the cycle
@@ -100,7 +105,11 @@ void square_wave() //square wave function
 	    out16(DAC0_Data, data);
         #endif
 
-        delay((int)N*(int)period*(100-duty_cycle)/100);
+        for(i=0;i<N*(100-duty_cycle)/100;i++)
+        {
+            if ( !(wave_type==1) || !(switch3_value(dio_switch)) ) return; 
+            delay((int)period);
+        }
 
 
     }
@@ -113,6 +122,7 @@ void triangular_wave()
     {
         for(i=0;i<N/2;i++) 
         {
+            if ( !(wave_type==2) || !(switch3_value(dio_switch)) ) return; 
             #if PCI
             data=( (vert_offset -amplitude+ amplitude*4*i/N + 10)/20.0  * 0xFFFF );
 	        out16(DA_CTLREG,0x0923);			    // DA Enable, #0, #1, SW 10V bipolar		
@@ -133,6 +143,7 @@ void triangular_wave()
 
   	    for(i=0;i<N/2;i++) 
         {
+            if ( !(wave_type==2) || !(switch3_value(dio_switch)) ) return; 
             #if PCI
             data=( (vert_offset + amplitude- amplitude*4*i/N + 10)/20.0  * 0xFFFF );
 	        out16(DA_CTLREG,0x0923);			    // DA Enable, #0, #1, SW 10V bipolar
@@ -158,6 +169,7 @@ void sawtooth_wave()
     {
         for(i=0;i<N;i++) 
         {
+            if ( !(wave_type==3) || !(switch3_value(dio_switch)) ) return; 
             #if PCI
             data=( (vert_offset -amplitude+ amplitude*2*i/N + 10)/20.0  * 0xFFFF );
             out16(DA_CTLREG,0x0923);			    // DA Enable, #0, #1, SW 10V bipolar		
