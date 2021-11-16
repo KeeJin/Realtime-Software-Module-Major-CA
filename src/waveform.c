@@ -14,15 +14,14 @@
 
 unsigned int i;
 unsigned int data;
-int beeper;
 
 int N=50; //number of "cuts" to make wave
-int beeping = 1; //to allow for only 1 beep per peak (for sine)
 
 
 
-void sine_wave() //sine wave function
+void sine_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper) //sine wave function
 {
+    int beeping = 1; //to allow for only 1 beep per peak (for sine)
     while( (wave_type==0) && (switch3_value(dio_switch)) )         //stops if wave_type is not 1 (sine)
     {
         for(i=0;i<N;i++) 
@@ -65,7 +64,7 @@ void sine_wave() //sine wave function
 }
 
 
-void square_wave() //square wave function
+void square_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper) //square wave function
 {
     while((wave_type==1)  && (switch3_value(dio_switch)))     //stops if wave_type is not 2 (square)
     {
@@ -116,7 +115,7 @@ void square_wave() //square wave function
 }
 
 
-void triangular_wave()
+void triangular_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
 {
     while((wave_type==2) && (switch3_value(dio_switch)))     //stops if wave_type is not 3 (triangular)
     {
@@ -163,7 +162,7 @@ void triangular_wave()
         printf("\n");
     }
 }
-void sawtooth_wave()
+void sawtooth_wave(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
 {
     while((wave_type==3) && (switch3_value(dio_switch)))     //stops if wave_type is not 3 (triangular)
     {
@@ -191,7 +190,7 @@ void sawtooth_wave()
     }    //sawtooth wave here
 }
 
-void zero_signal()
+void zero_signal(uintptr_t dio_switch, int wave_type, float amplitude, float period, float vert_offset, int duty_cycle, int beeper)
 {
     #if PCI
     //data= (5 + vert_offset)/10* 0xFFFF;                       
@@ -207,52 +206,78 @@ void zero_signal()
     out16(DAC0_Data, data);
     #endif 		
     while( (wave_type == 4 ) || !(switch3_value(dio_switch)) )     //stops if wave_type is not 0 (zero voltage)
-    {
-  		#if PCI
-    	//data= (5 + vert_offset)/10* 0xFFFF;                       
-    	data = 1/2 * 0xFFFF;			//corresponds to 0 voltage signal
-	    out16(DA_CTLREG,0x0923);			    // DA Enable, #0, #1, SW 10V bipolar		
-   	    out16(DA_FIFOCLR, 0);					// Clear DA FIFO  buffer
-        out16(DA_Data,(short) data);													
-  		#endif	
-        
-  		#if PCIe
-    	//data= (5 + vert_offset)/10* 0x0FFF;                     
-    	data = 1/2 * 0x0FFF;			//corresponds to 0 voltage signal
-        out16(DAC0_Data, data);
-        #endif 														
+    {        
+        for(i=0;i<N;i++) 
+        {
+            if ( !(wave_type==4) || !(switch3_value(dio_switch)) ) return; 
+            #if PCI
+            //data= (5 + vert_offset)/10* 0xFFFF;                       
+            data = 1/2 * 0xFFFF;			//corresponds to 0 voltage signal
+            out16(DA_CTLREG,0x0923);			    // DA Enable, #0, #1, SW 10V bipolar		
+            out16(DA_FIFOCLR, 0);					// Clear DA FIFO  buffer
+            out16(DA_Data,(short) data);													
+            #endif	
+            
+            #if PCIe
+            //data= (5 + vert_offset)/10* 0x0FFF;                     
+            data = 1/2 * 0x0FFF;			//corresponds to 0 voltage signal
+            out16(DAC0_Data, data);
+            #endif 							
+
+            delay((int)period);		//micros																								
+                                                                                                                                
+        }
+							
     }
+
   
 }
 
 
 void *waveform_thread(void *arg)  //thread to generate wave based on wave parameters
 {   
+    uintptr_t dio_switch_local;
+    int wave_type_local;
+    float amplitude_local;
+    float period_local;
+    float vert_offset_local;
+    int duty_cycle_local;
+    int beeper_local;
+
     while(1)
     {   if(switch3_value(dio_switch))
         {
+            //MUTEX LOCK HERE
+            dio_switch_local = dio_switch;
+            wave_type_local = wave_type;
+            amplitude_local = amplitude;
+            period_local = period;
+            vert_offset_local = vert_offset;
+            duty_cycle_local = duty_cycle;
+            beeper_local = beeper;
+            //MUTEX UNLOCK HERE
             switch(wave_type)
             {
                 case(SINE):    //sine
-                    sine_wave();
+                    sine_wave(dio_switch_local, wave_type_local, amplitude_local, period_local, vert_offset_local, duty_cycle_local, beeper_local);
                     break;
                 case(SQUARE):    //square
-                    square_wave();
+                    square_wave(dio_switch_local, wave_type_local, amplitude_local, period_local, vert_offset_local, duty_cycle_local, beeper_local);
                     break;
                 case(TRIANGULAR):    //triangular
-                    triangular_wave();
+                    triangular_wave(dio_switch_local, wave_type_local, amplitude_local, period_local, vert_offset_local, duty_cycle_local, beeper_local);
                     break;
                 case(SAWTOOTH):    //sawtooth
-                    sawtooth_wave();
+                    sawtooth_wave(dio_switch_local, wave_type_local, amplitude_local, period_local, vert_offset_local, duty_cycle_local, beeper_local);
                     break;
                 case(ZERO):    //zero voltage
-                    zero_signal();
+                    zero_signal(dio_switch_local, wave_type_local, amplitude_local, period_local, vert_offset_local, duty_cycle_local, beeper_local);
                     break;
                 default:
                     printf("invalid wave type error\n");
                     break;
             }
         }
-        else zero_signal();
+        else zero_signal(dio_switch_local, wave_type_local, amplitude_local, period_local, vert_offset_local, duty_cycle_local, beeper_local);
     } 
 }

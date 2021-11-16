@@ -22,6 +22,7 @@ float prev_period;
 float prev_vert_offset;
 int prev_duty_cycle;     
 
+int beeper;
 
 void *waveform_thread(void *arg);
 

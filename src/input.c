@@ -22,7 +22,6 @@ pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
 pthread_t DisplayTUI_ID;
 
-int beeper;
 
 
 #if PCI
