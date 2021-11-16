@@ -15,8 +15,6 @@
 #include "PCI_init.h"
 #include "waveform.h"     
 
-uint16_t readpotentiometer1;
-uint16_t readpotentiometer2;
 
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
@@ -35,18 +33,18 @@ int pot_res = 65536;
 //int pot_res = 32768;
 
 
-void read_potentiometer() //function to read potentiometers
+void read_potentiometer(uint16_t *readpotentiometer1, uint16_t *readpotentiometer2) //function to read potentiometers
 {
     #if PCIe
     out16(ADC_Data,0);		// Initiate Read #0
     delay(1);
     while(in8(ADC_Stat2) >0x80);	   			
-    readpotentiometer1=in16(ADC_Data);
+    *readpotentiometer1=in16(ADC_Data);
     
     out16(ADC_Data,0);		// Initiate Read #1
     delay(1);
     while(in8(ADC_Stat2) >0x80);	    			
-    readpotentiometer2=in16(ADC_Data);
+    *readpotentiometer2=in16(ADC_Data);
 
     #endif
 
@@ -54,11 +52,11 @@ void read_potentiometer() //function to read potentiometers
  	//start ADC
  	out16(AD_DATA,0);
  	while(!(in16(MUXCHAN)&0x4000));
- 	readpotentiometer1 = in16(AD_DATA); //read potentiometer 1
+ 	*readpotentiometer1 = in16(AD_DATA); //read potentiometer 1
     
  	out16(AD_DATA,0);
  	while(!(in16(MUXCHAN)&0x4000));
- 	readpotentiometer2 = in16(AD_DATA); //read potentiometer 2
+ 	*readpotentiometer2 = in16(AD_DATA); //read potentiometer 2
     #endif
  }
 
@@ -101,6 +99,8 @@ int switch3_value(int switch_value) //function to view in scope/osci
 
 void *hardware_input_thread(void *arg) // thread for digital I/O and potentiometer
 {
+    uint16_t readpotentiometer1;
+    uint16_t readpotentiometer2;
     
     #if PCI    
     dio_switch= in8(DIO_PORTA);
@@ -115,7 +115,7 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
     while(1)
     {
         update_LED();   //visualize the four switch states to the four LEDs        
-        read_potentiometer();        //Read from potentiometer 1 and 2
+        read_potentiometer(&readpotentiometer1,&readpotentiometer2);        //Read from potentiometer 1 and 2
 
         //Convert potentiometer readings to amplitude and average and update the variables
         //maximum potentiometer reading= pot_res (32768 or 65536)
