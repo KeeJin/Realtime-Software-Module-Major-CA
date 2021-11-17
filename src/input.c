@@ -81,9 +81,7 @@ int switch0_value(int switch_value) //funciton to read 1st switch --> kill code 
 
 int switch1_value(int switch_value) //funciton to read 2nd switch --> mute beeper
 {
-	 switch_value = (switch_value>>1)%2;
-	 if(switch_value) beeper = 1;
-	 else beeper = 0;
+	 return (switch_value>>1)%2;
 }
 int switch2_value(int switch_value) //funciton to view live/prev values
 {
@@ -145,7 +143,6 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
 		
 		
 		switch0=switch0_value(dio_switch);
-   		switch1_value(dio_switch);
 		if (switch0!=switch0_prev)
         {
             pthread_cancel(DisplayTUI_ID);

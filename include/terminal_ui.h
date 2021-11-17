@@ -7,7 +7,7 @@
 #define BASE_DELAY 1000
 #define MAIN_TEXT_COLOUR 6
 
-#define HARDWARE 0 //0: without hardware; 1: with hardware 
+#define HARDWARE 1 //0: without hardware; 1: with hardware 
 
 /* ------------------------------- Functions ---------------------------------- */
 void* DisplayTUI(void* arg);  // drawing thread
