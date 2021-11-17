@@ -215,8 +215,8 @@ void* DisplayTUI(void* args) {
         mvwprintw(win_toggle, 2, 16,
                   wave_types_toggle[wave_types_toggle_index]);
         wattroff(win_toggle, A_BOLD);
-  UpdateStats(win_feedback, amplitude_local, frequency_local, vertical_offset_local);
       }
+  UpdateStats(win_feedback, amplitude_local, frequency_local, vertical_offset_local);
       switch (key) {
         case KEY_RESIZE:
           getmaxyx(stdscr, y_max, x_max);

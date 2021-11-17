@@ -166,6 +166,7 @@ int main(int argc, char* argv[]) {
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         }
+        current_vert_offset = vertical_offset;
         break;
 
       case ('t'):
@@ -187,6 +188,7 @@ int main(int argc, char* argv[]) {
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         }
+        current_wave_type = wave_type;
         break;
 
       default:  // invalid
