@@ -11,7 +11,7 @@
 5. [IN QNX] 
 	>>sh build_hardware.sh
 6. [To run with command arguments] 
-	>>sh build_hard.sg
+	>>sh build_hard.sh
 	>>cd ../build
 	>>./main t:0 v:0 
 	
