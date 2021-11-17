@@ -24,6 +24,20 @@ int time_period_ms;
 extern pthread_mutex_t mutex_common;
 extern pthread_mutex_t mutex_vertical_offset;
 extern pthread_mutex_t mutex_wave_type;
+
+WaveType current_wave_type;  
+float current_amplitude;    
+float current_period;  
+float current_vert_offset;
+int current_duty_cycle;     
+
+WaveType prev_wave_type;  
+float prev_amplitude;    
+float prev_period;  
+float prev_vert_offset;
+int prev_duty_cycle;  
+
+unsigned int dio_switch;
 /* ---------------------------------------------------------------------------- */
 
 #endif /* COMMON */

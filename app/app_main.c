@@ -1,8 +1,5 @@
 #include "terminal_ui.h"
-
-// #include <stdio.h>
 #include <stdlib.h>
-
 
 pthread_mutex_t mutex_common;
 pthread_mutex_t mutex_vertical_offset;
@@ -14,6 +11,12 @@ int main(void) {
   int rc;
   long t;
   void* status;
+
+  prev_wave_type = SINE;
+  current_wave_type = SINE;
+  prev_vert_offset = 0.0;
+  current_vert_offset = 0.0;
+  dio_switch = 0;
 
   /* ------------------- Adjustable params ------------------- */
   pthread_mutex_lock(&mutex_common);
@@ -54,4 +57,3 @@ int main(void) {
   pthread_exit(NULL);
   return 0;
 }
-

@@ -71,7 +71,6 @@ struct pci_dev_info info;
 void *hdl;
 uintptr_t iobase[6];
 
-unsigned int dio_switch;
 unsigned int i;
 
 void initialization();
