@@ -37,6 +37,7 @@ void* DisplayTUI(void* args) {
   float period_local;
   int time_period_ms_local;
   const char* wave_types_toggle[4];
+  int prev_live = 1;
 
 #ifndef DEBUG
   initscr(); /* Start curses mode */
@@ -143,6 +144,7 @@ void* DisplayTUI(void* args) {
       0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
   DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
            vertical_offset_local);
+  UpdateStats(win_feedback, amplitude_local, frequency_local, vertical_offset_local);
   if (!switch3_value(dio_switch_local)) PlotGraph(win_wave_plot, win_feedback, wave_type_local, amplitude_local,
             scaled_amplitude, frequency_local, phase_shift,
             win_wave_plot_height, win_wave_plot_width);
@@ -176,6 +178,7 @@ void* DisplayTUI(void* args) {
           (wave_type_local == prev_wave_type))
       // if (0)
       {
+        prev_live = 1;
         pthread_mutex_lock(&mutex_vertical_offset);
         vertical_offset = current_vert_offset;
         pthread_mutex_unlock(&mutex_vertical_offset);
@@ -204,6 +207,7 @@ void* DisplayTUI(void* args) {
         mvwprintw(win_toggle, 2, 16,
                   wave_types_toggle[wave_types_toggle_index]);
         wattroff(win_toggle, A_BOLD);
+  UpdateStats(win_feedback, amplitude_local, frequency_local, vertical_offset_local);
       }
       switch (key) {
         case KEY_RESIZE:
@@ -345,6 +349,7 @@ void* DisplayTUI(void* args) {
           break;
       }
     } else {
+      
       pthread_mutex_lock(&mutex_vertical_offset);
       vertical_offset = prev_vert_offset;
       pthread_mutex_unlock(&mutex_vertical_offset);
@@ -364,6 +369,11 @@ void* DisplayTUI(void* args) {
       mvwprintw(win_toggle, 2, 2, "Graph Type: ");
       mvwprintw(win_toggle, 2, 16, wave_types_toggle[wave_types_toggle_index]);
       wattroff(win_toggle, A_BOLD);
+      if(prev_live) 
+      {
+        prev_live = 0;
+        UpdateStats(win_feedback, amplitude_local, frequency_local, vertical_offset_local);
+      }
     }
     wclear(win_wave_plot);
     WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
