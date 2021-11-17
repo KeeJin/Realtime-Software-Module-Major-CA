@@ -10,9 +10,9 @@ int prev_wave_type = 0;
 int current_wave_type = 0;
 float prev_vert_offset = 0;
 float current_vert_offset = 0;
-int dio_switch = 0;
-int switch2_value(int dio_switch) { return 1; }
-int switch3_value(int dio_switch) { return 0; }
+unsigned int dio_switch = 0;
+int switch2_value(unsigned int dio_switch) { return 1; }
+int switch3_value(unsigned int dio_switch) { return 0; }
 #endif
 
 #include <math.h>

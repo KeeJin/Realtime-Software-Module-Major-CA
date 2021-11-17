@@ -17,7 +17,7 @@ unsigned int data;
 
 int N = 50;  // number of "cuts" to make wave
 
-void sine_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
+void sine_wave(unsigned int dio_switch, WaveType wave_type, float amplitude,
                float period, float vert_offset, int duty_cycle,
                int beeper)  // sine wave function
 {
@@ -67,7 +67,7 @@ void sine_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
   }
 }
 
-void square_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
+void square_wave(unsigned int dio_switch, WaveType wave_type, float amplitude,
                  float period, float vert_offset, int duty_cycle,
                  int beeper)  // square wave function
 {
@@ -119,7 +119,7 @@ void square_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
   }
 }
 
-void triangular_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
+void triangular_wave(unsigned int dio_switch, WaveType wave_type, float amplitude,
                      float period, float vert_offset, int duty_cycle,
                      int beeper) {
   while (
@@ -169,7 +169,7 @@ void triangular_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
     printf("\n");
   }
 }
-void sawtooth_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
+void sawtooth_wave(unsigned int dio_switch, WaveType wave_type, float amplitude,
                    float period, float vert_offset, int duty_cycle,
                    int beeper) {
   while (
@@ -200,7 +200,7 @@ void sawtooth_wave(uintptr_t dio_switch, WaveType wave_type, float amplitude,
   }  // sawtooth wave here
 }
 
-void zero_signal(uintptr_t dio_switch, WaveType wave_type, float amplitude,
+void zero_signal(unsigned int dio_switch, WaveType wave_type, float amplitude,
                  float period, float vert_offset, int duty_cycle, int beeper) {
 #if PCI
   // data= (5 + vert_offset)/10* 0xFFFF;
