@@ -458,7 +458,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
         for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency);
               i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency);
               i += 1.0) {
-          if ((i - phase_shift) <= 5) {
+          if ((i - phase_shift) <= 5 || (i - phase_shift) >= win_wave_plot_width - 3) {
             continue;
           }
           // Find Y
@@ -473,7 +473,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
         for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency);
               i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency);
               i += 1.0) {
-          if ((i - phase_shift) <= 5) {
+          if ((i - phase_shift) <= 5 || (i - phase_shift) >= win_wave_plot_width - 3) {
             continue;
           }
           // Find Y
@@ -489,7 +489,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
               y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
-          if ((x) <= 5) {
+          if ((x) <= 5 || (x) >= win_wave_plot_width - 3) {
             continue;
           }
           // Print cell
@@ -500,7 +500,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
               y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
-          if ((x) <= 5) {
+          if ((x) <= 5 || (x) >= win_wave_plot_width - 3) {
             continue;
           }
           // Print cell
@@ -515,7 +515,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
         for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency);
               i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency);
               i += 1.0) {
-          if ((i - phase_shift) <= 5) {
+          if ((i - phase_shift) <= 5 || (i - phase_shift) >= win_wave_plot_width - 3) {
             continue;
           }
           x = i - phase_shift;
@@ -531,7 +531,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
         for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency);
               i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency);
               i += 1.0) {
-          if ((i - phase_shift) <= 5) {
+          if ((i - phase_shift) <= 5 || (i - phase_shift) >= win_wave_plot_width - 3) {
             continue;
           }
           x = i - phase_shift;
@@ -552,7 +552,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
         for (i = win_wave_plot_width * (2 * repeat) / (1 * frequency);
               i < win_wave_plot_width * (2 * repeat + 1) / (1 * frequency);
               i += 1.0) {
-          if ((i - phase_shift) <= 5) {
+          if ((i - phase_shift) <= 5 || (i - phase_shift) >= win_wave_plot_width - 3) {
             continue;
           }
           x = i - phase_shift;
@@ -567,7 +567,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
         for (i = win_wave_plot_width * (2 * repeat + 1) / (1 * frequency);
               i < win_wave_plot_width * (2 * repeat + 2) / (1 * frequency);
               i += 1.0) {
-          if ((i - phase_shift) <= 5) {
+          if ((i - phase_shift) <= 5 || (i - phase_shift) >= win_wave_plot_width - 3) {
             continue;
           }
           x = i - phase_shift;
@@ -584,7 +584,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
               y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
-          if ((x) <= 5) {
+          if ((x) <= 5 || (x) >= win_wave_plot_width - 3) {
             continue;
           }
           // Print cell
@@ -595,7 +595,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
               y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
-          if ((x) <= 5) {
+          if ((x) <= 5 || (x) >= win_wave_plot_width - 3) {
             continue;
           }
           // Print cell
