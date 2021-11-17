@@ -4,7 +4,6 @@
 #define WAVEFORM
 
 //Wave parameters
-float amplitude;    //ampltude (0v to 5v)
 int duty_cycle;      //duty cycle (only affects square wave) --> fixed at 50% for now
 
 int current_wave_type;  
