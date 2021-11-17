@@ -1,12 +1,10 @@
 // main.c --> command line arguments: wavetype and vertical offset
 
-#include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <signal.h>
 #include <process.h>
 #include <pthread.h>
-#include <stdlib.h>
 
 #include "PCI_init.h"
 #include "input.h"
@@ -134,9 +132,10 @@ int main(int argc, char* argv[]) {
     if (argv[j][1] !=
         colon)  // invalid argument: colon not found at second character
     {
+      printf("\n*******************************************************\n");
       printf("ERROR: Invalid command line argument\n");
       printf("Command line argument should be:\n");
-      printf("./main t:wave_type v:offset\n");
+      printf("./main t:wave_type v:vert_offset\n");
       printf("*******************************************************\n");
       return 0;  // invalid, exit program
     }
@@ -151,7 +150,9 @@ int main(int argc, char* argv[]) {
                    // correct data type
         if (sscanf(argument_value, "%f", &vertical_offset) != 1) {
           printf("\n*******************************************************\n");
-          printf("ERR: Vertical offset must be FLOAT\n");
+          printf("ERR: Vertical offset must be FLOAT,\n");
+          printf("and must be between %.0f and %.0f\n",
+                 LOWER_LIMIT_VOLTAGE, UPPER_LIMIT_VOLTAGE);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         } else if (vertical_offset < LOWER_LIMIT_VOLTAGE ||
@@ -160,8 +161,8 @@ int main(int argc, char* argv[]) {
                                              // range (-5 to 5)
         {
           printf("\n*******************************************************\n");
-          printf("ERR: Invalid vertical_offset\n");
-          printf("vertical_offset must be between %.0f and %.0f\n",
+          printf("ERR: Invalid vertical offset!\n");
+          printf("Vertical offset must be between %.0f and %.0f\n",
                  LOWER_LIMIT_VOLTAGE, UPPER_LIMIT_VOLTAGE);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
@@ -174,17 +175,17 @@ int main(int argc, char* argv[]) {
             1)  // parse wave type and check whether it is of correct data type
         {
           printf("\n*******************************************************\n");
-          printf("ERR: wave type must be INT (0,1,2,3)\n");
+          printf("ERR: Wave type must be INT (0,1,2,3)\n");
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         } else if (wave_type != SQUARE && wave_type != TRIANGULAR && wave_type != SAWTOOTH &&
                    wave_type != SINE)  // check if wave type value is valid
         {
           printf("\n*******************************************************\n");
-          printf("ERR: Invalid input\n");
+          printf("ERR: Invalid wave type!\n");
           printf(
-              "Input 0 for sine wave, 1 for square wave, 2 for triangular "
-              "wave, 3 for sawtooth wave\n");
+              "Input 0 for sine wave, 1 for square wave,\n"
+              "2 for triangular wave, 3 for sawtooth wave\n");
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         }
@@ -196,8 +197,7 @@ int main(int argc, char* argv[]) {
         printf("ERR: Invalid command line argument\n");
         printf("Command line argument should be as:\n");
         printf(
-            "./main t:wave_type amplitude:A_value m:mean_value f:frequency "
-            "level D:duty_cyctle_value\n");
+            "./main t:wave_type v:vert_offset\n");
         printf("*******************************************************\n");
         return 0;  // invalid, exit program
         break;
