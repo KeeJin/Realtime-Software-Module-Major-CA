@@ -76,6 +76,22 @@ void* DisplayTUI(void* args) {
   win_panel_width = win_wave_plot_width / 3;
   phase_shift = 0.0;
 
+  pthread_mutex_lock(&mutex_common);
+  amplitude_local = amplitude;
+  period_local = period;
+  frequency_local = 1 / period * 1000;
+  time_period_ms_local = time_period_ms;
+  dio_switch_local = dio_switch;
+  pthread_mutex_unlock(&mutex_common);
+
+  pthread_mutex_lock(&mutex_vertical_offset);
+  vertical_offset_local = vertical_offset;
+  pthread_mutex_unlock(&mutex_vertical_offset);
+  pthread_mutex_lock(&mutex_wave_type);
+  wave_type_local = wave_type;
+  pthread_mutex_unlock(&mutex_wave_type);
+
+  wave_types_toggle_index = wave_type_local;
 #ifndef DEBUG
   // Initialise windows
   win_wave_plot =
@@ -124,21 +140,8 @@ void* DisplayTUI(void* args) {
   wrefresh(win_description);
 
 #endif
-  pthread_mutex_lock(&mutex_common);
-  amplitude_local = amplitude;
-  period_local = period;
-  frequency_local = 1 / period * 1000;
-  time_period_ms_local = time_period_ms;
-  dio_switch_local = dio_switch;
-  pthread_mutex_unlock(&mutex_common);
 
-  pthread_mutex_lock(&mutex_vertical_offset);
-  vertical_offset_local = vertical_offset;
-  pthread_mutex_unlock(&mutex_vertical_offset);
 
-  pthread_mutex_lock(&mutex_wave_type);
-  wave_type_local = wave_type;
-  pthread_mutex_unlock(&mutex_wave_type);
 
   vertical_offset_local =
       vertical_offset_local /

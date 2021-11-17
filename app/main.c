@@ -21,15 +21,19 @@ pthread_mutex_t mutex_common;
 pthread_mutex_t mutex_vertical_offset;
 pthread_mutex_t mutex_wave_type;
 
-// variable for file logging
-// variables for finding the duration that the program runs
-
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
 pthread_t DisplayTUI_ID;
 
+// variable for file logging
+// variables for finding the duration that the program runs
+
+
 void signal_handler(int signum)  // Ctrl+c handler
 {
+  int rc;
+  void* status;
+  
   pthread_cancel(DisplayTUI_ID);
   endwin();
   system("clear");
@@ -51,6 +55,23 @@ void signal_handler(int signum)  // Ctrl+c handler
   pthread_mutex_unlock(&mutex_wave_type);
   delay(period);
   pthread_cancel(waveform_thread_ID);
+  pthread_cancel(hardware_input_thread_ID);
+  
+  rc = pthread_join(hardware_input_thread_ID, &status);
+  if (rc) {
+    printf("ERROR; return code from pthread_join() is %d\n", rc);
+    exit(-1);
+  }
+  rc = pthread_join(DisplayTUI_ID, &status);
+  if (rc) {
+    printf("ERROR; return code from pthread_join() is %d\n", rc);
+    exit(-1);
+  }
+  rc = pthread_join(waveform_thread_ID, &status);
+  if (rc) {
+    printf("ERROR; return code from pthread_join() is %d\n", rc);
+    exit(-1);
+  }
 #if PCI
   out8(DIO_PORTB, 0);
 #endif
@@ -78,11 +99,14 @@ void signal_handler(int signum)  // Ctrl+c handler
 }
 
 int main(int argc, char* argv[]) {
-  pthread_t display_thread;
+  pthread_attr_t hardware_input_thread_attr;
+  pthread_attr_t waveform_thread_attr;
+  pthread_attr_t DisplayTUI_attr;
   pthread_attr_t attr;
   int rc;
   long t;
   void* status;
+  int prev_switch0;
 
   // attach signal_handler to catch SIGINT
   signal(SIGINT, signal_handler);
@@ -206,16 +230,44 @@ int main(int argc, char* argv[]) {
   dio_switch= in8(DIO_Data);
   #endif
 
+  prev_switch0 = switch0_value(dio_switch);
   /* ----- Initialize and set thread detached attribute ------- */
-  pthread_create(&hardware_input_thread_ID, NULL, &hardware_input_thread, NULL);
-  pthread_create(&DisplayTUI_ID, NULL, DisplayTUI, NULL);
-  pthread_create(&waveform_thread_ID, NULL, &waveform_thread, NULL);
 
-  while (1) {
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+
+  rc = pthread_create(&hardware_input_thread_ID, &attr, &hardware_input_thread, (void*)t);  
+  if (rc) {
+    printf("ERROR; return code from pthread_create() is %d\n", rc);
+    exit(-1);
   }
 
-  printf("\n\nExit Program\n");
-  pci_detach_device(hdl);
+  rc = pthread_create(&DisplayTUI_ID, &attr, DisplayTUI, (void*)t);
+  if (rc) {
+    printf("ERROR; return code from pthread_create() is %d\n", rc);
+    exit(-1);
+  }
+
+  rc = pthread_create(&waveform_thread_ID, &attr, &waveform_thread, (void*)t);
+  if (rc) {
+    printf("ERROR; return code from pthread_create() is %d\n", rc);
+    exit(-1);
+  }
+
+
+  pthread_attr_destroy(&attr);
+
+  while(1)
+  {
+    pthread_mutex_lock(&mutex_common);
+    if (switch0_value(dio_switch) != prev_switch0) break;
+    pthread_mutex_unlock(&mutex_common);
+    delay(500);
+  }
+  
+  signal_handler(0);
+  
 
   return 0;
 }

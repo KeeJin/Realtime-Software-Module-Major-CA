@@ -444,4 +444,6 @@ void *waveform_thread(
       zero_signal(dio_switch_local, wave_type_local, amplitude_local,
                   period_local, vert_offset_local, duty_cycle_local, prev_switch0);
   }
+  zero_signal(dio_switch_local, wave_type_local, amplitude_local,
+              period_local, vert_offset_local, duty_cycle_local, prev_switch0);
 }
