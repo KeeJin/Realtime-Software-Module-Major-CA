@@ -243,7 +243,7 @@ void zero_signal(unsigned int dio_switch, WaveType wave_type, float amplitude,
 void *waveform_thread(
     void *arg)  // thread to generate wave based on wave parameters
 {
-  uintptr_t dio_switch_local;
+  unsigned int dio_switch_local;
   int wave_type_local;
   float amplitude_local;
   float period_local;
