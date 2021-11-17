@@ -11,6 +11,7 @@ int current_wave_type = 0;
 float prev_vert_offset = 0;
 float current_vert_offset = 0;
 unsigned int dio_switch = 0;
+int switch0_value(unsigned int dio_switch) { return 1; }
 int switch1_value(unsigned int dio_switch) { return 1; }
 int switch2_value(unsigned int dio_switch) { return 1; }
 int switch3_value(unsigned int dio_switch) { return 0; }
@@ -39,6 +40,8 @@ void* DisplayTUI(void* args) {
   int time_period_ms_local;
   const char* wave_types_toggle[4];
   int prev_live = 1;
+  int prev_switch0;
+  
 
 #ifndef DEBUG
   initscr(); /* Start curses mode */
@@ -149,9 +152,10 @@ void* DisplayTUI(void* args) {
   if (!switch3_value(dio_switch_local)) PlotGraph(win_wave_plot, win_feedback, wave_type_local, amplitude_local,
             scaled_amplitude, frequency_local, phase_shift,
             win_wave_plot_height, win_wave_plot_width);
+  prev_switch0 = switch0_value(dio_switch_local);
 #ifndef DEBUG
   // while (key != 'q') {
-  while (1) {
+  while (switch0_value(dio_switch_local)==prev_switch0) {
     pthread_mutex_lock(&mutex_common);
     amplitude_local = amplitude;
     frequency_local = 1.0 / period * 1000.0;

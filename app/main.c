@@ -198,9 +198,17 @@ int main(int argc, char* argv[]) {
   pthread_mutex_unlock(&mutex_common);
   /* ---------------------------------------------------------- */
 
+  #if PCI    
+  dio_switch= in8(DIO_PORTA);
+  #endif
+
+  #if PCIe    
+  dio_switch= in8(DIO_Data);
+  #endif
+
   /* ----- Initialize and set thread detached attribute ------- */
-  pthread_create(&DisplayTUI_ID, NULL, DisplayTUI, NULL);
   pthread_create(&hardware_input_thread_ID, NULL, &hardware_input_thread, NULL);
+  pthread_create(&DisplayTUI_ID, NULL, DisplayTUI, NULL);
   pthread_create(&waveform_thread_ID, NULL, &waveform_thread, NULL);
 
   while (1) {

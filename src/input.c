@@ -102,6 +102,7 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
     unsigned int dio_switch_local;
     float amplitude_local;
     float period_local;
+    int prev_switch0;
 
     #if PCI    
     dio_switch_local= in8(DIO_PORTA);
@@ -111,9 +112,8 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
     dio_switch_local= in8(DIO_Data);
     #endif
 
-	switch0=switch0_value(dio_switch_local);
-    switch0_prev=switch0;
-    while(1)
+	prev_switch0=switch0_value(dio_switch_local);
+    while( switch0_value(dio_switch_local)==prev_switch0 )
     {
 
 
@@ -152,8 +152,7 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
         dio_switch = dio_switch_local;
         pthread_mutex_unlock(&mutex_common);
 
-		switch0=switch0_value(dio_switch_local);
-		if (switch0!=switch0_prev)
+		/*if (switch0_value(dio_switch_local)!=prev_switch0) //kill
         {
             pthread_cancel(DisplayTUI_ID);
             endwin();
@@ -201,7 +200,8 @@ void *hardware_input_thread(void *arg) // thread for digital I/O and potentiomet
             fclose(fp);
             
             exit(EXIT_SUCCESS);                                 //exit the program
-		}    
+            
+		}   */ 
   
     }
 }

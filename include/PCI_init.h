@@ -72,8 +72,6 @@ void *hdl;
 uintptr_t iobase[6];
 
 unsigned int dio_switch;
-int switch0;
-int switch0_prev;
 unsigned int i;
 
 void initialization();
