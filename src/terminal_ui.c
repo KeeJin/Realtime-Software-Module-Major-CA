@@ -11,6 +11,7 @@ int current_wave_type = 0;
 float prev_vert_offset = 0;
 float current_vert_offset = 0;
 unsigned int dio_switch = 0;
+int switch1_value(unsigned int dio_switch) { return 1; }
 int switch2_value(unsigned int dio_switch) { return 1; }
 int switch3_value(unsigned int dio_switch) { return 0; }
 #endif
@@ -392,7 +393,7 @@ void* DisplayTUI(void* args) {
     while (getch() != ERR)
       ;  // clear buffer
     phase_shift += 1.0;
-    if (phase_shift * period >= (float)win_wave_plot_width * 25) {
+    if (phase_shift * period_local >= (float)win_wave_plot_width * 25) {
       phase_shift = 0.0;
       if (switch1_value(dio_switch_local) && !switch3_value(dio_switch_local)) {
         putchar(7);
