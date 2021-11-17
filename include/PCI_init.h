@@ -12,7 +12,7 @@
 #include <sys/mman.h>
 #include <math.h>
 
-#define PCIe		0		// 0: PCI 1: PCIe 
+#define PCIe		1		// 0: PCI 1: PCIe 
 #define PCI 		!PCIe
 
 // ********************************************************************
@@ -71,9 +71,6 @@ struct pci_dev_info info;
 void *hdl;
 uintptr_t iobase[6];
 
-uintptr_t dio_switch;
-int switch0;
-int switch0_prev;
 unsigned int i;
 
 void initialization();

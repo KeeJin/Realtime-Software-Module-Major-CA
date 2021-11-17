@@ -3,6 +3,7 @@
 #ifndef __INPUT_H
 #define __INPUT_H
 
+#include "common.h"
 
 void *hardware_input_thread(void *arg);
 

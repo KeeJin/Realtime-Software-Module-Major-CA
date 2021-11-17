@@ -2,33 +2,15 @@
 #define TERMINAL_UI
 
 #include <ncurses.h>
-#include <pthread.h>
+#include "common.h"
 
 #define BASE_DELAY 1000
 #define MAIN_TEXT_COLOUR 6
 
-#define HARDWARE 0 //0: without hardware; 1: with hardware 
-
-typedef enum _graphType {
-  SINE = 0,
-  SQUARE = 1,
-  TRIANGULAR = 2,
-  SAWTOOTH = 3
-} GraphType;
-
-/* ----------------------------- Global params -------------------------------- */
-GraphType graph_type;
-float amplitude;
-float frequency;
-float phase_shift;
-float vertical_offset;
-int time_period_ms;
-extern pthread_mutex_t mutex;
-/* ---------------------------------------------------------------------------- */
 
 /* ------------------------------- Functions ---------------------------------- */
 void* DisplayTUI(void* arg);  // drawing thread
-void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, GraphType type,
+void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
                float amplitude, float scaled_amplitude, float frequency,
                float phase_shift, int win_wave_plot_height,
                int win_wave_plot_width);
