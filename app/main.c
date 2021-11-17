@@ -99,10 +99,8 @@ void signal_handler(int signum)  // Ctrl+c handler
   endwin();
   system("clear");
   if (current_period == 0) {
-    current_wave_type = prev_wave_type;
     current_amplitude = prev_amplitude;
     current_period = prev_period;
-    current_vert_offset = prev_vert_offset;
   }
   fp = fopen("savefile.txt", "w");
   fprintf(fp, "%d\n%f\n%f\n%f\n%d\n", current_wave_type, current_amplitude,
