@@ -71,7 +71,7 @@ void DisplayTUI() {
   } else {
     right_panel_width = 55;
   }
-  win_panel_height = 14;
+  win_panel_height = 15;
   win_wave_plot_height = cached_y_max - win_panel_height - 1;
   win_wave_plot_width = cached_x_max - (2 * x_padding);
   win_panel_width = win_wave_plot_width - right_panel_width;
@@ -102,10 +102,10 @@ void DisplayTUI() {
       newwin(win_panel_height * 2 / 3, right_panel_width, y_padding, x_padding);
 
   mvwin(win_feedback,
-        y_padding + win_wave_plot_height + win_panel_height * 1 / 3 + 1,
+        y_padding + win_wave_plot_height + win_panel_height * 1 / 3,
         x_padding + win_panel_width);
 
-  win_toggle = newwin(win_panel_height * 1 / 3 + 1, right_panel_width,
+  win_toggle = newwin(win_panel_height * 1 / 3, right_panel_width,
                       y_padding, x_padding);
 
   mvwin(win_toggle, y_padding + win_wave_plot_height,
