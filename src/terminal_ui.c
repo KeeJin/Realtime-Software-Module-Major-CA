@@ -63,9 +63,9 @@ void DisplayTUI() {
   getmaxyx(stdscr, cached_y_max, cached_x_max);
   x_padding = 1;
   y_padding = 1;
-  win_wave_plot_height = cached_y_max * 6 / 11 - 1;
+  win_panel_height = 14;
+  win_wave_plot_height = cached_y_max - win_panel_height - 1;
   win_wave_plot_width = cached_x_max - (2 * x_padding);
-  win_panel_height = cached_y_max * 5 / 11;
   win_panel_width = win_wave_plot_width / 3;
   phase_shift = 0.0;
 
@@ -219,9 +219,9 @@ void DisplayTUI() {
           if (y_max != cached_y_max || x_max != cached_x_max) {
             cached_x_max = x_max;
             cached_y_max = y_max;
-            win_wave_plot_height = cached_y_max * 6 / 11 - 1;
+            win_panel_height = 14;
+            win_wave_plot_height = cached_y_max - win_panel_height - 1;
             win_wave_plot_width = cached_x_max - (2 * x_padding);
-            win_panel_height = cached_y_max * 5 / 11;
             win_panel_width = win_wave_plot_width / 3;
 
             wresize(win_wave_plot, win_wave_plot_height, win_wave_plot_width);
