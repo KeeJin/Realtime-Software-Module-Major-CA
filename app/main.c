@@ -150,12 +150,19 @@ int main(int argc, char* argv[]) {
   if (fp) {
     fscanf(fp, "%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period,
            &prev_vert_offset, &prev_duty_cycle);
-    if (prev_wave_type != SQUARE && prev_wave_type != TRIANGULAR && prev_wave_type != SAWTOOTH &&
-                   prev_wave_type != SINE) prev_wave_type = SINE;
-    if ( (prev_amplitude < 0) || (prev_amplitude > 5) ) prev_amplitude = 5;
-    if ( (prev_period < 25) || (prev_period > 50)) prev_period = 50;
-    if ( (prev_vert_offset < -5) || (prev_vert_offset > 5)) prev_vert_offset = 0;
-    if ( prev_duty_cycle != 50) prev_duty_cycle = 50;
+    if ((prev_wave_type != 1 && prev_wave_type != 2 && prev_wave_type != 3 &&
+                   prev_wave_type != 0)
+    || ( (prev_amplitude < 0) || (prev_amplitude > 5) ) 
+    || ( (prev_period < 25) || (prev_period > 50) )    
+    || ( (prev_vert_offset < -5) || (prev_vert_offset > 5) ) 
+    || ( prev_duty_cycle != 50)  )
+    {
+	    prev_wave_type = 0;
+	    prev_amplitude = 5.0;
+	    prev_period = 50.0;
+	    prev_vert_offset = 0.0;
+	    prev_duty_cycle = 50;
+    }
 
   }
   else {
