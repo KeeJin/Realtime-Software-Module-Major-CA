@@ -304,7 +304,7 @@ int main(int argc, char* argv[]) {
 
   pthread_attr_destroy(&attr);
 
-  DisplayTUI();
+  DisplayTUI((void*)t);
   
   signal_handler(0);
   
