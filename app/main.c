@@ -23,7 +23,8 @@ int main(void) {
   /* ------------------- Adjustable params ------------------- */
   time_period_ms = 100;
   amplitude = 3.0;
-  period = 50.0;  vertical_offset = 0.0;
+  period = 50.0;
+  vertical_offset = 0.0;
   wave_type = SINE;
   /* ---------------------------------------------------------- */
 
@@ -56,12 +57,14 @@ pthread_mutex_t mutex_wave_type;
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
 
+// variable for file logging
+// variables for finding the duration that the program runs
 
 void signal_handler(int signum)  // Ctrl+c handler
 {
   int rc;
   void* status;
-  
+
   system("clear");
   if (current_period == 0) {
     current_amplitude = prev_amplitude;
@@ -80,7 +83,7 @@ void signal_handler(int signum)  // Ctrl+c handler
   delay(period);
   pthread_cancel(waveform_thread_ID);
   pthread_cancel(hardware_input_thread_ID);
-  
+
   rc = pthread_join(hardware_input_thread_ID, &status);
   if (rc) {
     printf("ERROR; return code from pthread_join() is %d\n", rc);
@@ -168,8 +171,8 @@ int main(int argc, char* argv[]) {
         if (sscanf(argument_value, "%f", &vertical_offset) != 1) {
           printf("\n*******************************************************\n");
           printf("ERR: Vertical offset must be FLOAT,\n");
-          printf("and must be between %.0f and %.0f\n",
-                 LOWER_LIMIT_VOLTAGE, UPPER_LIMIT_VOLTAGE);
+          printf("and must be between %.0f and %.0f\n", LOWER_LIMIT_VOLTAGE,
+                 UPPER_LIMIT_VOLTAGE);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         } else if (vertical_offset < LOWER_LIMIT_VOLTAGE ||
@@ -195,7 +198,8 @@ int main(int argc, char* argv[]) {
           printf("ERR: Wave type must be INT (0,1,2,3)\n");
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
-        } else if (wave_type != SQUARE && wave_type != TRIANGULAR && wave_type != SAWTOOTH &&
+        } else if (wave_type != SQUARE && wave_type != TRIANGULAR &&
+                   wave_type != SAWTOOTH &&
                    wave_type != SINE)  // check if wave type value is valid
         {
           printf("\n*******************************************************\n");
@@ -213,8 +217,7 @@ int main(int argc, char* argv[]) {
         printf("\n*******************************************************\n");
         printf("ERR: Invalid command line argument\n");
         printf("Command line argument should be as:\n");
-        printf(
-            "./main t:wave_type v:vert_offset\n");
+        printf("./main t:wave_type v:vert_offset\n");
         printf("*******************************************************\n");
         return 0;  // invalid, exit program
         break;
@@ -226,18 +229,18 @@ int main(int argc, char* argv[]) {
   Initialize_ADC();  // initialize ADC
 
   /* ------------------- Adjustable params ------------------- */
-   pthread_mutex_lock(&mutex_common);
+  pthread_mutex_lock(&mutex_common);
   time_period_ms = 50;
   pthread_mutex_unlock(&mutex_common);
   /* ---------------------------------------------------------- */
 
-  #if PCI    
-  dio_switch= in8(DIO_PORTA);
-  #endif
+#if PCI
+  dio_switch = in8(DIO_PORTA);
+#endif
 
-  #if PCIe    
-  dio_switch= in8(DIO_Data);
-  #endif
+#if PCIe
+  dio_switch = in8(DIO_Data);
+#endif
 
   prev_switch0 = switch0_value(dio_switch);
   /* ----- Initialize and set thread detached attribute ------- */
@@ -245,8 +248,8 @@ int main(int argc, char* argv[]) {
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-
-  rc = pthread_create(&hardware_input_thread_ID, &attr, &hardware_input_thread, (void*)t);  
+  rc = pthread_create(&hardware_input_thread_ID, &attr, &hardware_input_thread,
+                      (void*)t);
   if (rc) {
     printf("ERROR; return code from pthread_create() is %d\n", rc);
     exit(-1);
@@ -258,13 +261,11 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-
   pthread_attr_destroy(&attr);
 
   DisplayTUI();
-  
+
   signal_handler(0);
-  
 
   return 0;
 }
