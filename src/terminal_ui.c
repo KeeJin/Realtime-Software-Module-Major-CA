@@ -272,7 +272,7 @@ void* DisplayTUI(void* args) {
             wrefresh(stdscr);
             wrefresh(win_description);
 
-            UpdateStats(win_feedback, scaled_amplitude, frequency_local,
+            UpdateStats(win_feedback, amplitude_local, frequency_local,
                         vertical_offset_local);
           }
           break;
