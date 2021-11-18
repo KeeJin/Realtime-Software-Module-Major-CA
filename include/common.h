@@ -24,8 +24,6 @@ float vertical_offset;
 int time_period_ms;
 int duty_cycle;      
 extern pthread_mutex_t mutex_common;
-extern pthread_mutex_t mutex_vertical_offset;
-extern pthread_mutex_t mutex_wave_type;
 
 WaveType current_wave_type;  
 float current_amplitude;    

@@ -4,8 +4,6 @@
 #include <stdlib.h>
 
 pthread_mutex_t mutex_common;
-pthread_mutex_t mutex_vertical_offset;
-pthread_mutex_t mutex_wave_type;
 
 int main(void) {
   pthread_t display_thread;
@@ -54,8 +52,6 @@ char colon = ':';
 char argument;
 char* argument_value;
 pthread_mutex_t mutex_common;
-pthread_mutex_t mutex_vertical_offset;
-pthread_mutex_t mutex_wave_type;
 
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
@@ -81,9 +77,9 @@ void signal_handler(int signum)  // Ctrl+c handler
   pci_detach_device(hdl);
   printf("Ending program...\n");
   printf("Resetting hardware...\n");
-  pthread_mutex_lock(&mutex_wave_type);
+  pthread_mutex_lock(&mutex_common);
   wave_type = ZERO;
-  pthread_mutex_unlock(&mutex_wave_type);
+  pthread_mutex_unlock(&mutex_common);
   delay(period);
   pthread_cancel(waveform_thread_ID);
   pthread_cancel(hardware_input_thread_ID);

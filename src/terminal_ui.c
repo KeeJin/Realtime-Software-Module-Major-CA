@@ -24,7 +24,7 @@ void DisplayTUI() {
   int win_panel_height, win_panel_width;
   int x_padding, y_padding, key;
   int wave_types_toggle_index = SINE;
-  float scaled_amplitude, phase_shift;
+  float scaled_amplitude, scaled_vertical_offset, phase_shift;
   unsigned int dio_switch_local;
   WaveType wave_type_local;
   float amplitude_local;
@@ -77,14 +77,9 @@ void DisplayTUI() {
   time_period_ms_local = time_period_ms;
   dio_switch_local = dio_switch;
   duty_cycle_local = duty_cycle;
-  pthread_mutex_unlock(&mutex_common);
-
-  pthread_mutex_lock(&mutex_vertical_offset);
   vertical_offset_local = vertical_offset;
-  pthread_mutex_unlock(&mutex_vertical_offset);
-  pthread_mutex_lock(&mutex_wave_type);
   wave_type_local = wave_type;
-  pthread_mutex_unlock(&mutex_wave_type);
+  pthread_mutex_unlock(&mutex_common);
 
   wave_types_toggle_index = wave_type_local;
 #ifndef DEBUG
@@ -142,12 +137,12 @@ void DisplayTUI() {
 
 #endif
 
-  vertical_offset_local =
+  scaled_vertical_offset =
       0.8 * ((float)win_wave_plot_height / 2.0) * (vertical_offset_local / 5.0);
   scaled_amplitude =
       0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
   DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
-           vertical_offset_local);
+           scaled_vertical_offset);
   UpdateStats(win_feedback, amplitude_local, frequency_local,
               vertical_offset_local, duty_cycle_local, wave_type_local);
   if (!switch3_value(dio_switch_local)) {
@@ -170,17 +165,11 @@ void DisplayTUI() {
     time_period_ms_local = time_period_ms;
     dio_switch_local = dio_switch;
     duty_cycle = duty_cycle_local;
+    vertical_offset = vertical_offset_local;
+    wave_type = wave_type_local;
     pthread_mutex_unlock(&mutex_common);
 
-    pthread_mutex_lock(&mutex_vertical_offset);
-    vertical_offset_local = vertical_offset;
-    pthread_mutex_unlock(&mutex_vertical_offset);
-
-    pthread_mutex_lock(&mutex_wave_type);
-    wave_type_local = wave_type;
-    pthread_mutex_unlock(&mutex_wave_type);
-
-    vertical_offset_local =
+    scaled_vertical_offset =
         vertical_offset_local /
         (0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0)) *
         ((float)win_wave_plot_height / 2.0);
@@ -208,15 +197,9 @@ void DisplayTUI() {
       // if (0)
       {
         prev_live = 1;
-        pthread_mutex_lock(&mutex_vertical_offset);
-        vertical_offset = current_vert_offset;
-        pthread_mutex_unlock(&mutex_vertical_offset);
-
-        pthread_mutex_lock(&mutex_wave_type);
-        wave_type = current_wave_type;
-        pthread_mutex_unlock(&mutex_wave_type);
-        
         pthread_mutex_lock(&mutex_common);
+        vertical_offset = current_vert_offset;
+        wave_type = current_wave_type;
         duty_cycle = current_duty_cycle;
         pthread_mutex_unlock(&mutex_common);
 
@@ -229,7 +212,7 @@ void DisplayTUI() {
         wclear(win_wave_plot);
         wclear(win_toggle);
         DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
-                 vertical_offset_local);
+                 scaled_vertical_offset);
         WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
         wattron(win_toggle, A_BOLD);
         wattron(win_toggle, COLOR_PAIR(MAIN_TEXT_COLOUR));
@@ -272,7 +255,7 @@ void DisplayTUI() {
             wclear(win_toggle);
 
             DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
-                     vertical_offset_local);
+                     scaled_vertical_offset);
             WindowDesign(win_wave_plot, win_description, win_feedback,
                          win_toggle);
             wattron(win_toggle, A_BOLD);
@@ -328,21 +311,17 @@ void DisplayTUI() {
           break;
 
         case KEY_UP:
-          pthread_mutex_lock(&mutex_vertical_offset);
-          vertical_offset += VERT_OFFSET_INCREMENT;
-          if (vertical_offset >= UPPER_LIMIT_VOLTAGE)
-            vertical_offset = UPPER_LIMIT_VOLTAGE;
-          current_vert_offset = vertical_offset;
-          pthread_mutex_unlock(&mutex_vertical_offset);
+          vertical_offset_local += VERT_OFFSET_INCREMENT;
+          if (vertical_offset_local >= UPPER_LIMIT_VOLTAGE)
+            vertical_offset_local = UPPER_LIMIT_VOLTAGE;
+          current_vert_offset = vertical_offset_local;
           break;
 
         case KEY_DOWN:
-          pthread_mutex_lock(&mutex_vertical_offset);
-          vertical_offset -= VERT_OFFSET_INCREMENT;
-          if (vertical_offset <= LOWER_LIMIT_VOLTAGE)
-            vertical_offset = LOWER_LIMIT_VOLTAGE;
-          current_vert_offset = vertical_offset;
-          pthread_mutex_unlock(&mutex_vertical_offset);
+          vertical_offset_local -= VERT_OFFSET_INCREMENT;
+          if (vertical_offset_local <= LOWER_LIMIT_VOLTAGE)
+            vertical_offset_local = LOWER_LIMIT_VOLTAGE;
+          current_vert_offset = vertical_offset_local;
           break;
 
         case KEY_LEFT:
@@ -351,15 +330,13 @@ void DisplayTUI() {
           } else {
             wave_types_toggle_index--;
           }
-          pthread_mutex_lock(&mutex_wave_type);
-          wave_type = wave_types_toggle_index;
-          pthread_mutex_unlock(&mutex_wave_type);
+          wave_type_local = wave_types_toggle_index;
 
           current_wave_type = wave_types_toggle_index;
           wclear(win_wave_plot);
           wclear(win_toggle);
           DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
-                   vertical_offset_local);
+                   scaled_vertical_offset);
           WindowDesign(win_wave_plot, win_description, win_feedback,
                        win_toggle);
           wattron(win_toggle, A_BOLD);
@@ -375,15 +352,13 @@ void DisplayTUI() {
           } else {
             wave_types_toggle_index++;
           }
-          pthread_mutex_lock(&mutex_wave_type);
-          wave_type = wave_types_toggle_index;
-          pthread_mutex_unlock(&mutex_wave_type);
+          wave_type_local = wave_types_toggle_index;
 
           current_wave_type = wave_types_toggle_index;
           wclear(win_wave_plot);
           wclear(win_toggle);
           DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
-                   vertical_offset_local);
+                   scaled_vertical_offset);
           WindowDesign(win_wave_plot, win_description, win_feedback,
                        win_toggle);
           wattron(win_toggle, A_BOLD);
@@ -397,23 +372,16 @@ void DisplayTUI() {
           break;
       }
     } else {
-      pthread_mutex_lock(&mutex_vertical_offset);
-      vertical_offset = prev_vert_offset;
-      pthread_mutex_unlock(&mutex_vertical_offset);
-
-      pthread_mutex_lock(&mutex_wave_type);
-      wave_type = prev_wave_type;
-      pthread_mutex_unlock(&mutex_wave_type);
-
       pthread_mutex_lock(&mutex_common);
+      vertical_offset = prev_vert_offset;
+      wave_type = prev_wave_type;
       duty_cycle = prev_duty_cycle;
-      pthread_mutex_unlock(&mutex_wave_type);
 
       wave_types_toggle_index = prev_wave_type;
       wclear(win_wave_plot);
       wclear(win_toggle);
       DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
-               vertical_offset_local);
+               scaled_vertical_offset);
       WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
       wattron(win_toggle, A_BOLD);
       wattron(win_toggle, COLOR_PAIR(MAIN_TEXT_COLOUR));
@@ -429,7 +397,7 @@ void DisplayTUI() {
     wclear(win_wave_plot);
     WindowDesign(win_wave_plot, win_description, win_feedback, win_toggle);
     DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
-             vertical_offset_local);
+             scaled_vertical_offset);
     if (!switch3_value(dio_switch_local)) {
       PlotGraph(win_wave_plot, win_feedback, wave_type_local, amplitude_local,
                 scaled_amplitude, frequency_local, phase_shift,
