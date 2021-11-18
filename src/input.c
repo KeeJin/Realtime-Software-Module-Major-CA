@@ -21,7 +21,6 @@ pthread_t waveform_thread_ID;
 pthread_t DisplayTUI_ID;
 
 
-
 #if PCI
 int pot_res = 32768;
 #endif
@@ -29,8 +28,6 @@ int pot_res = 32768;
 #if PCIe
 int pot_res = 65536;
 #endif
-
-//int pot_res = 32768;
 
 
 void read_potentiometer(uint16_t *readpotentiometer1, uint16_t *readpotentiometer2) //function to read potentiometers

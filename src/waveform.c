@@ -66,7 +66,6 @@ void sine_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       if ((sinf((float)(i * 2 * 3.1415 / N)) >= 0.99) &&
           beeping)  // beep if wave reaches max peak
       {
-        // printf("%.2f", sinf((float)(i*2*3.1415/N)));
         if (switch1_value(dio_switch_local)) putchar(7);
         printf("\n");
         beeping = !beeping;
@@ -75,7 +74,6 @@ void sine_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       else if ((sinf((float)(i * 2 * 3.1415 / N)) <= -0.99) &&
                !beeping)  // beep if wave reaches min peak
       {
-        //	printf("%.2f", sinf((float)(i*2*3.1415/N)));
         if (switch1_value(dio_switch_local)) putchar(7);
         printf("\n");
         beeping = !beeping;
@@ -316,7 +314,6 @@ void zero_signal(unsigned int dio_switch_local, WaveType wave_type_local,
 #endif
 
 #if PCIe
-  // data= (5 + vert_offset)/10* 0x0FFF;
   data = 1 / 2 * 0x0FFF;  // corresponds to 0 voltage signal
   out16(DAC0_Data, data);
 #endif
@@ -334,7 +331,6 @@ void zero_signal(unsigned int dio_switch_local, WaveType wave_type_local,
 #endif
 
 #if PCIe
-      // data= (5 + vert_offset)/10* 0x0FFF;
       data = 1 / 2 * 0x0FFF;  // corresponds to 0 voltage signal
       out16(DAC0_Data, data);
 #endif
