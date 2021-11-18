@@ -84,7 +84,6 @@ pthread_mutex_t mutex_wave_type;
 
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
-pthread_t DisplayTUI_ID;
 
 // variable for file logging
 // variables for finding the duration that the program runs
@@ -95,8 +94,6 @@ void signal_handler(int signum)  // Ctrl+c handler
   int rc;
   void* status;
   
-  pthread_cancel(DisplayTUI_ID);
-  endwin();
   system("clear");
   if (current_period == 0) {
     current_amplitude = prev_amplitude;
@@ -117,11 +114,6 @@ void signal_handler(int signum)  // Ctrl+c handler
   pthread_cancel(hardware_input_thread_ID);
   
   rc = pthread_join(hardware_input_thread_ID, &status);
-  if (rc) {
-    printf("ERROR; return code from pthread_join() is %d\n", rc);
-    exit(-1);
-  }
-  rc = pthread_join(DisplayTUI_ID, &status);
   if (rc) {
     printf("ERROR; return code from pthread_join() is %d\n", rc);
     exit(-1);
@@ -158,9 +150,6 @@ void signal_handler(int signum)  // Ctrl+c handler
 }
 
 int main(int argc, char* argv[]) {
-  pthread_attr_t hardware_input_thread_attr;
-  pthread_attr_t waveform_thread_attr;
-  pthread_attr_t DisplayTUI_attr;
   pthread_attr_t attr;
   int rc;
   long t;
@@ -306,12 +295,6 @@ int main(int argc, char* argv[]) {
     exit(-1);
   }
 
-  rc = pthread_create(&DisplayTUI_ID, &attr, DisplayTUI, (void*)t);
-  if (rc) {
-    printf("ERROR; return code from pthread_create() is %d\n", rc);
-    exit(-1);
-  }
-
   rc = pthread_create(&waveform_thread_ID, &attr, &waveform_thread, (void*)t);
   if (rc) {
     printf("ERROR; return code from pthread_create() is %d\n", rc);
@@ -321,13 +304,7 @@ int main(int argc, char* argv[]) {
 
   pthread_attr_destroy(&attr);
 
-  while(1)
-  {
-    pthread_mutex_lock(&mutex_common);
-    if (switch0_value(dio_switch) != prev_switch0) break;
-    pthread_mutex_unlock(&mutex_common);
-    delay(500);
-  }
+  DisplayTUI();
   
   signal_handler(0);
   
