@@ -191,12 +191,7 @@ void* DisplayTUI(void* args) {
 
         wave_types_toggle_index = current_wave_type;
 
-        wave_type_local = current_wave_type; /*
-         amplitude_local = amplitude;
-         frequency_local = 1/period*1000;
-             frequency = 1/period*1000;
-         vertical_offset_local = vertical_offset;
-         time_period_ms_local = time_period_ms;*/
+        wave_type_local = current_wave_type;
 
         wclear(win_wave_plot);
         wclear(win_toggle);
@@ -277,7 +272,7 @@ void* DisplayTUI(void* args) {
             wrefresh(stdscr);
             wrefresh(win_description);
 
-            UpdateStats(win_feedback, scaled_amplitude, frequency_local,
+            UpdateStats(win_feedback, amplitude_local, frequency_local,
                         vertical_offset_local);
           }
           break;
@@ -396,10 +391,6 @@ void* DisplayTUI(void* args) {
     phase_shift += 1.0;
     if (phase_shift * period_local >= (float)win_wave_plot_width * 25) {
       phase_shift = 0.0;
-      if (switch1_value(dio_switch_local) && !switch3_value(dio_switch_local)) {
-        putchar(7);
-        printf("\n");
-      }
     }
     usleep(time_period_ms * BASE_DELAY);
   }
@@ -624,6 +615,9 @@ void PlotPoint(WINDOW* win, int x, int y) {
 void UpdateStats(WINDOW* win, float amplitude, float frequency,
                  float vert_offset) {
   // float period;
+  float period;
+  frequency /= 60;
+  period = 1/frequency;
   wattron(win, A_BOLD);
   //   wattron(win, A_STANDOUT);
   wattron(win, COLOR_PAIR(MAIN_TEXT_COLOUR));
@@ -632,7 +626,7 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   //   wattron(win, COLOR_PAIR(3));
   mvwprintw(win, 3, 2, "Frequency    :        Hz");
   //   wattron(win, COLOR_PAIR(4));
-  mvwprintw(win, 4, 2, "Period       :        ms");
+  mvwprintw(win, 4, 2, "Period       :        s");
   mvwprintw(win, 5, 2, "Y-offset     :        V");
 
   //   wattroff(win, A_STANDOUT);
