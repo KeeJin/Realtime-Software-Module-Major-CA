@@ -135,9 +135,7 @@ void DisplayTUI() {
 #endif
 
   vertical_offset_local =
-      vertical_offset_local /
-      (0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0)) *
-      ((float)win_wave_plot_height / 2.0);
+      0.8 * ((float)win_wave_plot_height / 2.0) * (vertical_offset_local / 5.0);
   scaled_amplitude =
       0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
   DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
@@ -427,7 +425,7 @@ void DrawAxes(WINDOW* win, int win_wave_plot_height, int win_wave_plot_width,
       mvwprintw(win, win_wave_plot_height / 2 + (int)vertical_offset, i, "-");
     }
   }
-  mvwprintw(win, win_wave_plot_height / 2 + vertical_offset,
+  mvwprintw(win, win_wave_plot_height / 2 + (int)vertical_offset,
             win_wave_plot_width - 3, ">");
 }
 
