@@ -1,5 +1,5 @@
 // main.c --> command line arguments: wavetype and vertical offset
-#ifdef HARDWARE
+#ifndef HARDWARE
 #include "terminal_ui.h"
 #include <stdlib.h>
 

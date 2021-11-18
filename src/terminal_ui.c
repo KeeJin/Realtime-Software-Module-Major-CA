@@ -129,8 +129,12 @@ void DisplayTUI() {
             "L/R arrow keys  : Wave selector");
   mvwprintw(win_description, 11, 2,
             "U/D arrow keys  : Y-offset (-5 to 5 V)");
-  mvwprintw(win_description, 12, 2,
+  if (wave_type_local == SQUARE)
+    mvwprintw(win_description, 12, 2,
           "+/- keypress    : Duty Cycle (0 to 100%%)");
+  else 
+    mvwprintw(win_description, 12, 2,
+          "                                         ");
 
   wattroff(win_description, A_BOLD);
   wrefresh(stdscr);
@@ -182,6 +186,20 @@ void DisplayTUI() {
         ((float)win_wave_plot_height / 2.0);
     scaled_amplitude =
         0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
+
+
+    wattron(win_description, A_BOLD);
+    wattron(win_description, COLOR_PAIR(MAIN_TEXT_COLOUR));
+    if (wave_type_local == SQUARE)
+      mvwprintw(win_description, 12, 2,
+            "+/- keypress    : Duty Cycle (0 to 100%%)");
+    else 
+      mvwprintw(win_description, 12, 2,
+            "                                         ");
+
+    wattroff(win_description, A_BOLD);
+    wrefresh(stdscr);
+    wrefresh(win_description);
   
     if (switch2_value(dio_switch_local)) {
       if ((vertical_offset_local == prev_vert_offset) ||
