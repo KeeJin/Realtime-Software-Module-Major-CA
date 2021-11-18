@@ -31,6 +31,7 @@ void DisplayTUI() {
   float frequency_local;
   float vertical_offset_local;
   float period_local;
+  int duty_cycle_local;
   int time_period_ms_local;
   const char* wave_types_toggle[4];
   int prev_live = 1;
@@ -75,6 +76,7 @@ void DisplayTUI() {
   frequency_local = 1 / period * 1000;
   time_period_ms_local = time_period_ms;
   dio_switch_local = dio_switch;
+  duty_cycle_local = duty_cycle;
   pthread_mutex_unlock(&mutex_common);
 
   pthread_mutex_lock(&mutex_vertical_offset);
@@ -123,10 +125,12 @@ void DisplayTUI() {
   mvwprintw(win_description, 7, 2, "Digital Switch 2: Saved values/Live");
   mvwprintw(win_description, 8, 2,
             "Digital Switch 3: TUI/Oscilloscope display");
-  mvwprintw(win_description, 9, 2,
-            "4 Digital LEDS  : Corresponds to switch state");
-  mvwprintw(win_description, 11, 2, "L/R arrow keys : Wave selector");
-  mvwprintw(win_description, 12, 2, "U/D arrow keys : Y-offset (-5 to 5 V)");
+  mvwprintw(win_description, 10, 2, 
+            "L/R arrow keys  : Wave selector");
+  mvwprintw(win_description, 11, 2,
+            "U/D arrow keys  : Y-offset (-5 to 5 V)");
+  mvwprintw(win_description, 12, 2,
+          "+/- keypress    : Duty Cycle (0 to 100%%)");
 
   wattroff(win_description, A_BOLD);
   wrefresh(stdscr);
@@ -141,11 +145,11 @@ void DisplayTUI() {
   DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
            vertical_offset_local);
   UpdateStats(win_feedback, amplitude_local, frequency_local,
-              vertical_offset_local);
+              vertical_offset_local, duty_cycle_local, wave_type_local);
   if (!switch3_value(dio_switch_local)) {
     PlotGraph(win_wave_plot, win_feedback, wave_type_local, amplitude_local,
               scaled_amplitude, frequency_local, phase_shift,
-              win_wave_plot_height, win_wave_plot_width);
+              win_wave_plot_height, win_wave_plot_width, duty_cycle_local);
   } else {
     // Inform user that display is currently on oscilloscope
     DisplayInactivePlot(win_wave_plot, win_wave_plot_width,
@@ -161,6 +165,7 @@ void DisplayTUI() {
     period_local = period;
     time_period_ms_local = time_period_ms;
     dio_switch_local = dio_switch;
+    duty_cycle = duty_cycle_local;
     pthread_mutex_unlock(&mutex_common);
 
     pthread_mutex_lock(&mutex_vertical_offset);
@@ -190,10 +195,16 @@ void DisplayTUI() {
         pthread_mutex_lock(&mutex_wave_type);
         wave_type = current_wave_type;
         pthread_mutex_unlock(&mutex_wave_type);
+        
+        pthread_mutex_lock(&mutex_common);
+        duty_cycle = current_duty_cycle;
+        pthread_mutex_unlock(&mutex_common);
 
         wave_types_toggle_index = current_wave_type;
 
         wave_type_local = current_wave_type;
+
+        duty_cycle_local = current_duty_cycle;
 
         wclear(win_wave_plot);
         wclear(win_toggle);
@@ -208,7 +219,7 @@ void DisplayTUI() {
         wattroff(win_toggle, A_BOLD);
       }
       UpdateStats(win_feedback, amplitude_local, frequency_local,
-                  vertical_offset_local);
+                  vertical_offset_local, duty_cycle_local, wave_type_local);
       switch (key) {
         case KEY_RESIZE:
           getmaxyx(stdscr, y_max, x_max);
@@ -265,20 +276,37 @@ void DisplayTUI() {
                       "Digital Switch 2: Saved values/Live");
             mvwprintw(win_description, 8, 2,
                       "Digital Switch 3: TUI/Oscilloscope display");
-            mvwprintw(win_description, 9, 2,
-                      "4 Digital LEDS  : Corresponds to switch state");
-            mvwprintw(win_description, 11, 2, "L/R arrow keys : Wave selector");
+            mvwprintw(win_description, 10, 2, 
+                      "L/R arrow keys  : Wave selector");
+            mvwprintw(win_description, 11, 2,
+                      "U/D arrow keys  : Y-offset (-5 to 5 V)");
             mvwprintw(win_description, 12, 2,
-                      "U/D arrow keys : Y-offset (-5 to 5 V)");
+                      "+/- keypress    : Duty Cycle (0 to 100%%)");
 
             wattroff(win_description, A_BOLD);
             wrefresh(stdscr);
             wrefresh(win_description);
 
             UpdateStats(win_feedback, amplitude_local, frequency_local,
-                        vertical_offset_local);
+                        vertical_offset_local, duty_cycle_local, wave_type_local);
           }
           break;
+        case 43: //+
+          if (wave_type_local != SQUARE) break;
+          duty_cycle_local += DUTY_CYCLE_INCREMENT;
+          if (duty_cycle_local >= 100)
+            duty_cycle_local = 100;
+          current_duty_cycle = duty_cycle_local;
+          break;
+
+        case 45: //-
+          if (wave_type_local != SQUARE) break;
+          duty_cycle_local -= DUTY_CYCLE_INCREMENT;
+          if (duty_cycle_local <= 0)
+            duty_cycle_local = 0;
+          current_duty_cycle = duty_cycle_local;
+          break;
+
         case KEY_UP:
           pthread_mutex_lock(&mutex_vertical_offset);
           vertical_offset += VERT_OFFSET_INCREMENT;
@@ -357,6 +385,10 @@ void DisplayTUI() {
       wave_type = prev_wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
 
+      pthread_mutex_lock(&mutex_common);
+      duty_cycle = prev_duty_cycle;
+      pthread_mutex_unlock(&mutex_wave_type);
+
       wave_types_toggle_index = prev_wave_type;
       wclear(win_wave_plot);
       wclear(win_toggle);
@@ -371,7 +403,7 @@ void DisplayTUI() {
       if (prev_live) {
         prev_live = 0;
         UpdateStats(win_feedback, amplitude_local, frequency_local,
-                    vertical_offset_local);
+                    vertical_offset_local, duty_cycle_local, wave_type_local);
       }
     }
     wclear(win_wave_plot);
@@ -381,7 +413,7 @@ void DisplayTUI() {
     if (!switch3_value(dio_switch_local)) {
       PlotGraph(win_wave_plot, win_feedback, wave_type_local, amplitude_local,
                 scaled_amplitude, frequency_local, phase_shift,
-                win_wave_plot_height, win_wave_plot_width);
+                win_wave_plot_height, win_wave_plot_width, duty_cycle_local);
     } else {
       // Inform user that display is currently on oscilloscope
       DisplayInactivePlot(win_wave_plot, win_wave_plot_width,
@@ -432,7 +464,7 @@ void DrawAxes(WINDOW* win, int win_wave_plot_height, int win_wave_plot_width,
 void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
                float amplitude, float scaled_amplitude, float frequency,
                float phase_shift, int win_wave_plot_height,
-               int win_wave_plot_width) {
+               int win_wave_plot_width, int duty_cycle) {
   int x, y, repeat;
   double i, ratio;
   frequency /= 10;
@@ -456,7 +488,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
       for (repeat = 0; repeat < 8 * frequency; repeat++)  // number of cycles
       {
         for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency);
-             i < win_wave_plot_width * (2 * repeat + 1) / (2 * frequency);
+             i < win_wave_plot_width * (2 * repeat + 1) / frequency * (1-duty_cycle/100);
              i += 1.0) {
           if ((i - phase_shift) <= 5 ||
               (i - phase_shift) >= win_wave_plot_width - 3) {
@@ -471,8 +503,8 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           PlotPoint(win_wave_plot, (int)x, (int)y);
         }
 
-        for (i = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency);
-             i < win_wave_plot_width * (2 * repeat + 2) / (2 * frequency);
+        for (i = win_wave_plot_width * (2 * repeat + 1) / frequency * (1-duty_cycle/100);
+             i < win_wave_plot_width * (2 * repeat + 2) / frequency * duty_cycle/100;
              i += 1.0) {
           if ((i - phase_shift) <= 5 ||
               (i - phase_shift) >= win_wave_plot_width - 3) {
@@ -487,7 +519,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           PlotPoint(win_wave_plot, (int)x, (int)y);
         }
 
-        x = win_wave_plot_width * (2 * repeat + 1) / (2 * frequency) -
+        x = win_wave_plot_width * (2 * repeat + 1) / frequency * duty_cycle/100 -
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
              y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
@@ -498,7 +530,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           PlotPoint(win_wave_plot, (int)x, (int)y);
         }
 
-        x = win_wave_plot_width * (2 * repeat + 2) / (2 * frequency) -
+        x = win_wave_plot_width * (2 * repeat + 2) / frequency * (1 - duty_cycle/100) -
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
              y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
@@ -615,7 +647,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
       break;
   }
 
-  UpdateStats(win_feedback, amplitude, frequency, vertical_offset);
+  UpdateStats(win_feedback, amplitude, frequency, vertical_offset, duty_cycle, type);
 }
 
 void PlotPoint(WINDOW* win, int x, int y) {
@@ -627,7 +659,7 @@ void PlotPoint(WINDOW* win, int x, int y) {
 }
 
 void UpdateStats(WINDOW* win, float amplitude, float frequency,
-                 float vert_offset) {
+                 float vert_offset, int duty_cycle, WaveType wave_type) {
   // float period;
   float period;
   frequency /= 60;
@@ -642,6 +674,10 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   //   wattron(win, COLOR_PAIR(4));
   mvwprintw(win, 4, 2, "Period       :        s");
   mvwprintw(win, 5, 2, "Y-offset     :        V");
+  if(wave_type == SQUARE)
+    mvwprintw(win, 6, 2, "Duty Cycle   :        %%");
+  else
+    mvwprintw(win, 6, 2, "                        ");
 
   //   wattroff(win, A_STANDOUT);
   //   wattron(win, COLOR_PAIR(6));
@@ -649,6 +685,11 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   mvwprintw(win, 3, 17, "%.2f ", frequency);
   mvwprintw(win, 4, 17, "%.2f ", period);
   mvwprintw(win, 5, 17, "%.2f ", vertical_offset);
+
+  if(wave_type == SQUARE)
+    mvwprintw(win, 6, 17, "%d ", duty_cycle);
+  else
+    mvwprintw(win, 6, 2, "                        ");
   wattroff(win, A_BOLD);
 }
 

@@ -19,8 +19,7 @@ int N = 50;  // number of "cuts" to make wave
 
 void sine_wave(unsigned int dio_switch_local, WaveType wave_type_local,
                float amplitude_local, float period_local,
-               float vert_offset_local, int duty_cycle_local,
-               int prev_switch0)  // sine wave function
+               float vert_offset_local, int prev_switch0)  // sine wave function
 {
   int beeping = 1;  // to allow for only 1 beep per peak (for sine)
   while (
@@ -58,10 +57,6 @@ void sine_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       pthread_mutex_lock(&mutex_wave_type);
       wave_type_local = wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
-
-      // MUTEX LOCK HERE
-      duty_cycle_local = duty_cycle;
-      // MUTEX UNLOCK HERE
 
       pthread_mutex_lock(&mutex_vertical_offset);
       vert_offset_local = vertical_offset;
@@ -121,15 +116,12 @@ void square_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       amplitude_local = amplitude;
       period_local = period;
       dio_switch_local = dio_switch;
+      duty_cycle_local = duty_cycle;
       pthread_mutex_unlock(&mutex_common);
 
       pthread_mutex_lock(&mutex_wave_type);
       wave_type_local = wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
-
-      // MUTEX LOCK HERE
-      duty_cycle_local = duty_cycle;
-      // MUTEX UNLOCK HERE
 
       pthread_mutex_lock(&mutex_vertical_offset);
       vert_offset_local = vertical_offset;
@@ -161,15 +153,12 @@ void square_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       amplitude_local = amplitude;
       period_local = period;
       dio_switch_local = dio_switch;
+      duty_cycle_local = duty_cycle;
       pthread_mutex_unlock(&mutex_common);
 
       pthread_mutex_lock(&mutex_wave_type);
       wave_type_local = wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
-
-      // MUTEX LOCK HERE
-      duty_cycle_local = duty_cycle;
-      // MUTEX UNLOCK HERE
 
       pthread_mutex_lock(&mutex_vertical_offset);
       vert_offset_local = vertical_offset;
@@ -180,8 +169,7 @@ void square_wave(unsigned int dio_switch_local, WaveType wave_type_local,
 
 void triangular_wave(unsigned int dio_switch_local, WaveType wave_type_local,
                      float amplitude_local, float period_local,
-                     float vert_offset_local, int duty_cycle_local,
-                     int prev_switch0) {
+                     float vert_offset_local, int prev_switch0) {
   while ((wave_type_local == 2) &&
          (switch3_value(
              dio_switch_local)))  // stops if wave_type is not 3 (triangular)
@@ -217,10 +205,6 @@ void triangular_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       wave_type_local = wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
 
-      // MUTEX LOCK HERE
-      duty_cycle_local = duty_cycle;
-      // MUTEX UNLOCK HERE
-
       pthread_mutex_lock(&mutex_vertical_offset);
       vert_offset_local = vertical_offset;
       pthread_mutex_unlock(&mutex_vertical_offset);
@@ -259,10 +243,6 @@ void triangular_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       wave_type_local = wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
 
-      // MUTEX LOCK HERE
-      duty_cycle_local = duty_cycle;
-      // MUTEX UNLOCK HERE
-
       pthread_mutex_lock(&mutex_vertical_offset);
       vert_offset_local = vertical_offset;
       pthread_mutex_unlock(&mutex_vertical_offset);
@@ -273,8 +253,7 @@ void triangular_wave(unsigned int dio_switch_local, WaveType wave_type_local,
 }
 void sawtooth_wave(unsigned int dio_switch_local, WaveType wave_type_local,
                    float amplitude_local, float period_local,
-                   float vert_offset_local, int duty_cycle_local,
-                   int prev_switch0) {
+                   float vert_offset_local, int prev_switch0) {
   while ((wave_type_local == 3) &&
          (switch3_value(
              dio_switch_local)))  // stops if wave_type is not 3 (triangular)
@@ -310,10 +289,6 @@ void sawtooth_wave(unsigned int dio_switch_local, WaveType wave_type_local,
       wave_type_local = wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
 
-      // MUTEX LOCK HERE
-      duty_cycle_local = duty_cycle;
-      // MUTEX UNLOCK HERE
-
       pthread_mutex_lock(&mutex_vertical_offset);
       vert_offset_local = vertical_offset;
       pthread_mutex_unlock(&mutex_vertical_offset);
@@ -326,8 +301,7 @@ void sawtooth_wave(unsigned int dio_switch_local, WaveType wave_type_local,
 
 void zero_signal(unsigned int dio_switch_local, WaveType wave_type_local,
                  float amplitude_local, float period_local,
-                 float vert_offset_local, int duty_cycle_local,
-                 int prev_switch0) {
+                 float vert_offset_local, int prev_switch0) {
 #if PCI
   data = 0x8000;     // corresponds to 0 voltage signal
   out16(DA_CTLREG, 0x0923);  // DA Enable, #0, #1, SW 10V bipolar
@@ -370,10 +344,6 @@ void zero_signal(unsigned int dio_switch_local, WaveType wave_type_local,
       wave_type_local = wave_type;
       pthread_mutex_unlock(&mutex_wave_type);
 
-      // MUTEX LOCK HERE
-      duty_cycle_local = duty_cycle;
-      // MUTEX UNLOCK HERE
-
       pthread_mutex_lock(&mutex_vertical_offset);
       vert_offset_local = vertical_offset;
       pthread_mutex_unlock(&mutex_vertical_offset);
@@ -396,15 +366,12 @@ void *waveform_thread(
   amplitude_local = amplitude;
   period_local = period;
   dio_switch_local = dio_switch;
+  duty_cycle_local = duty_cycle;
   pthread_mutex_unlock(&mutex_common);
 
   pthread_mutex_lock(&mutex_wave_type);
   wave_type_local = wave_type;
   pthread_mutex_unlock(&mutex_wave_type);
-
-  // MUTEX LOCK HERE
-  duty_cycle_local = duty_cycle;
-  // MUTEX UNLOCK HERE
 
   pthread_mutex_lock(&mutex_vertical_offset);
   vert_offset_local = vertical_offset;
@@ -417,15 +384,12 @@ void *waveform_thread(
     amplitude_local = amplitude;
     period_local = period;
     dio_switch_local = dio_switch;
+    duty_cycle_local = duty_cycle;
     pthread_mutex_unlock(&mutex_common);
 
     pthread_mutex_lock(&mutex_wave_type);
     wave_type_local = wave_type;
     pthread_mutex_unlock(&mutex_wave_type);
-
-    // MUTEX LOCK HERE
-    duty_cycle_local = duty_cycle;
-    // MUTEX UNLOCK HERE
 
     pthread_mutex_lock(&mutex_vertical_offset);
     vert_offset_local = vertical_offset;
@@ -435,8 +399,7 @@ void *waveform_thread(
       switch (wave_type_local) {
         case (SINE):  // sine
           sine_wave(dio_switch_local, wave_type_local, amplitude_local,
-                    period_local, vert_offset_local, duty_cycle_local,
-                    prev_switch0);
+                    period_local, vert_offset_local, prev_switch0);
           break;
         case (SQUARE):  // square
           square_wave(dio_switch_local, wave_type_local, amplitude_local,
@@ -445,18 +408,15 @@ void *waveform_thread(
           break;
         case (TRIANGULAR):  // triangular
           triangular_wave(dio_switch_local, wave_type_local, amplitude_local,
-                          period_local, vert_offset_local, duty_cycle_local,
-                          prev_switch0);
+                          period_local, vert_offset_local, prev_switch0);
           break;
         case (SAWTOOTH):  // sawtooth
           sawtooth_wave(dio_switch_local, wave_type_local, amplitude_local,
-                        period_local, vert_offset_local, duty_cycle_local,
-                        prev_switch0);
+                        period_local, vert_offset_local, prev_switch0);
           break;
         case (ZERO):  // zero voltage
           zero_signal(dio_switch_local, wave_type_local, amplitude_local,
-                      period_local, vert_offset_local, duty_cycle_local,
-                      prev_switch0);
+                      period_local, vert_offset_local, prev_switch0);
           break;
         default:
           printf("invalid wave type error\n");
@@ -464,9 +424,8 @@ void *waveform_thread(
       }
     } else
       zero_signal(dio_switch_local, wave_type_local, amplitude_local,
-                  period_local, vert_offset_local, duty_cycle_local,
-                  prev_switch0);
+                  period_local, vert_offset_local, prev_switch0);
   }
   zero_signal(dio_switch_local, wave_type_local, amplitude_local, period_local,
-              vert_offset_local, duty_cycle_local, prev_switch0);
+              vert_offset_local, prev_switch0);
 }

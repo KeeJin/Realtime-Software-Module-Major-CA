@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
     || ( (prev_amplitude < 0) || (prev_amplitude > 5) ) 
     || ( (prev_period < 25) || (prev_period > 50) )    
     || ( (prev_vert_offset < -5) || (prev_vert_offset > 5) ) 
-    || ( prev_duty_cycle != 50)  )
+    || ( prev_duty_cycle < 0) || (prev_duty_cycle > 100) )
     {
 	    prev_wave_type = 0;
 	    prev_amplitude = 5.0;

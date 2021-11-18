@@ -6,6 +6,7 @@
 #define LOWER_LIMIT_VOLTAGE -5.0f
 #define UPPER_LIMIT_VOLTAGE 5.0f
 #define VERT_OFFSET_INCREMENT 0.1f
+#define DUTY_CYCLE_INCREMENT 5
 
 typedef enum _waveType {
   SINE = 0,
@@ -21,6 +22,7 @@ float amplitude;
 float period;  
 float vertical_offset;
 int time_period_ms;
+int duty_cycle;      
 extern pthread_mutex_t mutex_common;
 extern pthread_mutex_t mutex_vertical_offset;
 extern pthread_mutex_t mutex_wave_type;
