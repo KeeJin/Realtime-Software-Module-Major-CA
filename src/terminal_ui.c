@@ -182,9 +182,11 @@ void DisplayTUI() {
         ((float)win_wave_plot_height / 2.0);
     scaled_amplitude =
         0.8 * ((float)win_wave_plot_height / 2.0) * (amplitude_local / 5.0);
+  
     if (switch2_value(dio_switch_local)) {
       if ((vertical_offset_local == prev_vert_offset) ||
-          (wave_type_local == prev_wave_type))
+          (wave_type_local == prev_wave_type) ||
+          duty_cycle_local == prev_duty_cycle)
       // if (0)
       {
         prev_live = 1;
@@ -504,7 +506,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
         }
 
         for (i = win_wave_plot_width * (2 * repeat + 1) / frequency * (1-duty_cycle/100);
-             i < win_wave_plot_width * (2 * repeat + 2) / frequency * duty_cycle/100;
+             i < win_wave_plot_width * (2 * repeat + 2) / frequency;
              i += 1.0) {
           if ((i - phase_shift) <= 5 ||
               (i - phase_shift) >= win_wave_plot_width - 3) {
@@ -518,7 +520,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           // Print cell
           PlotPoint(win_wave_plot, (int)x, (int)y);
         }
-
+/*
         x = win_wave_plot_width * (2 * repeat + 1) / frequency * duty_cycle/100 -
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
@@ -539,7 +541,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           }
           // Print cell
           PlotPoint(win_wave_plot, (int)x, (int)y);
-        }
+        }*/
       }
       break;
     }

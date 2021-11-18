@@ -1,5 +1,5 @@
 // main.c --> command line arguments: wavetype and vertical offset
-#ifndef HARDWARE
+#ifdef HARDWARE
 #include "terminal_ui.h"
 #include <stdlib.h>
 
@@ -18,6 +18,8 @@ int main(void) {
   current_wave_type = SINE;
   prev_vert_offset = 0.0;
   current_vert_offset = 0.0;
+  prev_duty_cycle = 50;
+  current_duty_cycle = 50;
   dio_switch = 0;
 
   /* ------------------- Adjustable params ------------------- */
@@ -26,6 +28,7 @@ int main(void) {
   period = 50.0;
   vertical_offset = 0.0;
   wave_type = SINE;
+  duty_cycle = 50;
   /* ---------------------------------------------------------- */
 
   DisplayTUI();
@@ -69,10 +72,11 @@ void signal_handler(int signum)  // Ctrl+c handler
   if (current_period == 0) {
     current_amplitude = prev_amplitude;
     current_period = prev_period;
+    current_duty_cycle = prev_duty_cycle;
   }
   fp = fopen("savefile.txt", "w");
   fprintf(fp, "%d\n%f\n%f\n%f\n%d\n", current_wave_type, current_amplitude,
-          current_period, current_vert_offset, duty_cycle);
+          current_period, current_vert_offset, current_duty_cycle);
   fclose(fp);
   pci_detach_device(hdl);
   printf("Ending program...\n");
@@ -118,6 +122,7 @@ int main(int argc, char* argv[]) {
   wave_type = SINE;
   vertical_offset = 0.0;
   duty_cycle = 50;
+  current_duty_cycle = 50;
   period = 50.0;
 
   fp = fopen("savefile.txt", "r");
