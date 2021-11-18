@@ -23,7 +23,7 @@ int main(void) {
   /* ------------------- Adjustable params ------------------- */
   time_period_ms = 100;
   amplitude = 3.0;
-  period = 50.0;
+  period = 35.0;
   vertical_offset = 0.0;
   wave_type = SINE;
   duty_cycle = 50;
