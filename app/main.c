@@ -290,7 +290,7 @@ int main(int argc, char* argv[]) {
 
   pthread_attr_destroy(&attr);
 
-  DisplayTUI((void*)t);
+  DisplayTUI();
   
   signal_handler(0);
   
