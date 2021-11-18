@@ -486,6 +486,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
                float phase_shift, int win_wave_plot_height,
                int win_wave_plot_width, int duty_cycle) {
   int x, y, repeat;
+  float temp1, temp2;
   double i, ratio;
   frequency /= 10;
 
@@ -505,10 +506,11 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
       break;
     }
     case SQUARE: {
+      
       for (repeat = 0; repeat < 8 * frequency; repeat++)  // number of cycles
       {
-        for (i = win_wave_plot_width * (2 * repeat) / (2 * frequency);
-             i < win_wave_plot_width * (2 * repeat + 1) / frequency * (1-duty_cycle/100);
+        for (i = win_wave_plot_width / frequency * (100 * repeat)/ 100;
+             i < win_wave_plot_width / frequency * (100 * repeat + (100-duty_cycle))/ 100;
              i += 1.0) {
           if ((i - phase_shift) <= 5 ||
               (i - phase_shift) >= win_wave_plot_width - 3) {
@@ -522,9 +524,8 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           // Print cell
           PlotPoint(win_wave_plot, (int)x, (int)y);
         }
-
-        for (i = win_wave_plot_width * (2 * repeat + 1) / frequency * (1-duty_cycle/100);
-             i < win_wave_plot_width * (2 * repeat + 2) / frequency;
+        for (i = win_wave_plot_width / frequency * (100 * repeat + (100-duty_cycle))/ 100;
+             i < win_wave_plot_width / frequency * (100 * repeat + 100)/ 100;
              i += 1.0) {
           if ((i - phase_shift) <= 5 ||
               (i - phase_shift) >= win_wave_plot_width - 3) {
@@ -538,8 +539,11 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           // Print cell
           PlotPoint(win_wave_plot, (int)x, (int)y);
         }
-/*
-        x = win_wave_plot_width * (2 * repeat + 1) / frequency * duty_cycle/100 -
+
+      
+      if (duty_cycle > 0 && duty_cycle < 100)
+      {
+        x = win_wave_plot_width / frequency * (100 * repeat + (100-duty_cycle))/ 100 -
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
              y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
@@ -550,7 +554,7 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           PlotPoint(win_wave_plot, (int)x, (int)y);
         }
 
-        x = win_wave_plot_width * (2 * repeat + 2) / frequency * (1 - duty_cycle/100) -
+        x = win_wave_plot_width / frequency * (100 * repeat + 100)/ 100 -
             phase_shift;
         for (y = win_wave_plot_height / 2 - scaled_amplitude + 2;
              y < win_wave_plot_height / 2 + scaled_amplitude; y++) {
@@ -559,8 +563,10 @@ void PlotGraph(WINDOW* win_wave_plot, WINDOW* win_feedback, WaveType type,
           }
           // Print cell
           PlotPoint(win_wave_plot, (int)x, (int)y);
-        }*/
+        }
       }
+      }
+      
       break;
     }
     case TRIANGULAR: {
