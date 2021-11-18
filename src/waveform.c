@@ -309,8 +309,7 @@ void zero_signal(unsigned int dio_switch_local, WaveType wave_type_local,
                   float vert_offset_local, int duty_cycle_local, int prev_switch0) 
 {
 #if PCI
-  // data= (5 + vert_offset)/10* 0xFFFF;
-  data = 1 / 2 * 0xFFFF;     // corresponds to 0 voltage signal
+  data = 0x8000;     // corresponds to 0 voltage signal
   out16(DA_CTLREG, 0x0923);  // DA Enable, #0, #1, SW 10V bipolar
   out16(DA_FIFOCLR, 0);      // Clear DA FIFO  buffer
   out16(DA_Data, (short)data);
@@ -328,8 +327,7 @@ void zero_signal(unsigned int dio_switch_local, WaveType wave_type_local,
     for (i = 0; i < N; i++) {
       if (!(wave_type_local == 4) || !(switch3_value(dio_switch_local)) || (switch0_value(dio_switch_local)!=prev_switch0) ) return;
 #if PCI
-      // data= (5 + vert_offset)/10* 0xFFFF;
-      data = 1 / 2 * 0xFFFF;     // corresponds to 0 voltage signal
+      data = 0x8000;     // corresponds to 0 voltage signal
       out16(DA_CTLREG, 0x0923);  // DA Enable, #0, #1, SW 10V bipolar
       out16(DA_FIFOCLR, 0);      // Clear DA FIFO  buffer
       out16(DA_Data, (short)data);
