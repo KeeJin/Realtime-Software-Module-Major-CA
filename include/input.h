@@ -5,6 +5,8 @@
 
 #include "common.h"
 
+FILE *fp;
+
 /* ----------------------------- Functions -------------------------------- */
 void *hardware_input_thread(
     void *arg);  // Thread function for
@@ -23,8 +25,5 @@ int switch1_value(int switch_value);
 int switch2_value(int switch_value);
 int switch3_value(int switch_value);
 /* ------------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------------ */
-FILE *fp;
 
 #endif /* INPUT_H */
