@@ -39,7 +39,6 @@ void DisplayTUI() {
   int prev_switch0;
   int x_win_threshold, right_panel_width;  // for window sizing optimisation
 
-#ifndef DEBUG
   initscr(); /* Start curses mode */
   start_color();
   nodelay(stdscr, 1);
@@ -55,8 +54,6 @@ void DisplayTUI() {
   init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
   init_pair(6, COLOR_CYAN, COLOR_BLACK);
   init_pair(7, COLOR_WHITE, COLOR_BLACK);
-
-#endif
 
   wave_types_toggle[0] = "SINE";
   wave_types_toggle[1] = "SQUARE";
@@ -90,7 +87,7 @@ void DisplayTUI() {
   pthread_mutex_unlock(&mutex_common);
 
   wave_types_toggle_index = wave_type_local;
-#ifndef DEBUG
+
   // Initialise windows
   win_wave_plot =
       newwin(win_wave_plot_height, win_wave_plot_width, y_padding, x_padding);
@@ -141,8 +138,6 @@ void DisplayTUI() {
   wrefresh(stdscr);
   wrefresh(win_description);
 
-#endif
-
   scaled_vertical_offset =
       0.8 * ((float)win_wave_plot_height / 2.0) * (vertical_offset_local / 5.0);
   scaled_amplitude =
@@ -161,8 +156,6 @@ void DisplayTUI() {
                         win_wave_plot_height);
   }
   prev_switch0 = switch0_value(dio_switch_local);
-#ifndef DEBUG
-  // while (key != 'q') {
   while (switch0_value(dio_switch_local) == prev_switch0) {
     pthread_mutex_lock(&mutex_common);
     amplitude_local = amplitude;
@@ -199,7 +192,6 @@ void DisplayTUI() {
       if ((vertical_offset_local == prev_vert_offset) ||
           (wave_type_local == prev_wave_type) ||
           duty_cycle_local == prev_duty_cycle)
-      // if (0)
       {
         prev_live = 1;
         pthread_mutex_lock(&mutex_common);
@@ -311,14 +303,14 @@ void DisplayTUI() {
                         wave_type_local);
           }
           break;
-        case 43:  //+
+        case 43:  // + key
           if (wave_type_local != SQUARE) break;
           duty_cycle_local += DUTY_CYCLE_INCREMENT;
           if (duty_cycle_local >= 100) duty_cycle_local = 100;
           current_duty_cycle = duty_cycle_local;
           break;
 
-        case 45:  //-
+        case 45:  // - key
           if (wave_type_local != SQUARE) break;
           duty_cycle_local -= DUTY_CYCLE_INCREMENT;
           if (duty_cycle_local <= 0) duty_cycle_local = 0;
@@ -432,8 +424,7 @@ void DisplayTUI() {
     wrefresh(win_feedback);
     wrefresh(win_toggle);
     key = getch();
-    while (getch() != ERR)
-      ;  // clear buffer
+    while (getch() != ERR) {}  // clear buffer
     phase_shift += 1.0;
     if (phase_shift * period_local >= (float)win_wave_plot_width * 25) {
       phase_shift = 0.0;
@@ -442,7 +433,6 @@ void DisplayTUI() {
   }
 
   endwin(); /* End curses mode */
-#endif
 }
 
 void DrawAxes(WINDOW* win, int win_wave_plot_height, int win_wave_plot_width,
