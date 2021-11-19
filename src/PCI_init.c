@@ -1,5 +1,3 @@
-// PCI_init.c --> initialize PCI hardware
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

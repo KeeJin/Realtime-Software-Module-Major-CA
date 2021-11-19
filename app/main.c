@@ -1,4 +1,3 @@
-// main.c --> command line arguments: wavetype, duty cycle and vertical offset
 
 #ifndef HARDWARE  // Runs program without hardware
 #include "terminal_ui.h"
