@@ -15,7 +15,6 @@ void *hardware_input_thread(
 // Function to read the potentiometer from the hardware
 void read_potentiometer(uint16_t *readpotentiometer1,
                         uint16_t *readpotentiometer2);
->>>>>>> Stashed changes
 
 // Function to write to LED on the hardware
 void update_LED(unsigned int dio_switch);
