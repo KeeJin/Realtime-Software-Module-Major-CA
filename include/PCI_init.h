@@ -72,7 +72,7 @@ uintptr_t iobase[6];
 unsigned int i;
 
 /* ------------------------------- Functions ---------------------------------- */
-void initialization();
+void initialization(); // Init for PCI/PCIe communication
 void initialize_DIO();
 void Initialize_ADC();
 /* ---------------------------------------------------------------------------- */
