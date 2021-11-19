@@ -1,5 +1,5 @@
-#ifndef __PCI_INIT_H
-#define __PCI_INIT_H
+#ifndef PCI_INIT
+#define PCI_INIT
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,7 +60,7 @@
 
 #define 	DA_Data			iobase[4] + 0				// Badr4 + 0
 #define	DA_FIFOCLR		iobase[4] + 2				// Badr4 + 2
-#endif
+#endif /* PCI_INIT */
 
 
 
@@ -71,9 +71,11 @@ uintptr_t iobase[6];
 
 unsigned int i;
 
-void initialization();
+/* ------------------------------- Functions ---------------------------------- */
+void initialization(); // Init for PCI/PCIe communication
 void initialize_DIO();
 void Initialize_ADC();
+/* ---------------------------------------------------------------------------- */
 
 
-#endif /*__PCI_INIT_H__*/
+#endif /*PCI_INIT_H*/

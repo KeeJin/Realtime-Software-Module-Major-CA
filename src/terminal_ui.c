@@ -39,7 +39,6 @@ void DisplayTUI() {
   int prev_switch0;
   int x_win_threshold, right_panel_width;  // for window sizing optimisation
 
-#ifndef DEBUG
   initscr(); /* Start curses mode */
   start_color();
   nodelay(stdscr, 1);
@@ -56,13 +55,12 @@ void DisplayTUI() {
   init_pair(6, COLOR_CYAN, COLOR_BLACK);
   init_pair(7, COLOR_WHITE, COLOR_BLACK);
 
-#endif
-
   wave_types_toggle[0] = "SINE";
   wave_types_toggle[1] = "SQUARE";
   wave_types_toggle[2] = "TRIANGULAR";
   wave_types_toggle[3] = "SAW TOOTH";
 
+  // Get current window dimensions
   getmaxyx(stdscr, cached_y_max, cached_x_max);
   x_padding = 1;
   y_padding = 1;
@@ -90,7 +88,7 @@ void DisplayTUI() {
   pthread_mutex_unlock(&mutex_common);
 
   wave_types_toggle_index = wave_type_local;
-#ifndef DEBUG
+
   // Initialise windows
   win_wave_plot =
       newwin(win_wave_plot_height, win_wave_plot_width, y_padding, x_padding);
@@ -106,8 +104,8 @@ void DisplayTUI() {
         y_padding + win_wave_plot_height + win_panel_height * 1 / 3,
         x_padding + win_panel_width);
 
-  win_toggle = newwin(win_panel_height * 1 / 3, right_panel_width,
-                      y_padding, x_padding);
+  win_toggle =
+      newwin(win_panel_height * 1 / 3, right_panel_width, y_padding, x_padding);
 
   mvwin(win_toggle, y_padding + win_wave_plot_height,
         x_padding + win_panel_width);
@@ -141,8 +139,6 @@ void DisplayTUI() {
   wrefresh(stdscr);
   wrefresh(win_description);
 
-#endif
-
   scaled_vertical_offset =
       0.8 * ((float)win_wave_plot_height / 2.0) * (vertical_offset_local / 5.0);
   scaled_amplitude =
@@ -161,8 +157,6 @@ void DisplayTUI() {
                         win_wave_plot_height);
   }
   prev_switch0 = switch0_value(dio_switch_local);
-#ifndef DEBUG
-  // while (key != 'q') {
   while (switch0_value(dio_switch_local) == prev_switch0) {
     pthread_mutex_lock(&mutex_common);
     amplitude_local = amplitude;
@@ -198,9 +192,7 @@ void DisplayTUI() {
     if (switch2_value(dio_switch_local)) {
       if ((vertical_offset_local == prev_vert_offset) ||
           (wave_type_local == prev_wave_type) ||
-          duty_cycle_local == prev_duty_cycle)
-      // if (0)
-      {
+          duty_cycle_local == prev_duty_cycle) {
         prev_live = 1;
         pthread_mutex_lock(&mutex_common);
         vertical_offset = current_vert_offset;
@@ -230,6 +222,7 @@ void DisplayTUI() {
                   vertical_offset_local, duty_cycle_local, wave_type_local);
       switch (key) {
         case KEY_RESIZE:
+          // Get current window dimensions
           getmaxyx(stdscr, y_max, x_max);
 
           // Check if window size has change - if yes, recalculate
@@ -311,14 +304,14 @@ void DisplayTUI() {
                         wave_type_local);
           }
           break;
-        case 43:  //+
+        case 43:  // + key
           if (wave_type_local != SQUARE) break;
           duty_cycle_local += DUTY_CYCLE_INCREMENT;
           if (duty_cycle_local >= 100) duty_cycle_local = 100;
           current_duty_cycle = duty_cycle_local;
           break;
 
-        case 45:  //-
+        case 45:  // - key
           if (wave_type_local != SQUARE) break;
           duty_cycle_local -= DUTY_CYCLE_INCREMENT;
           if (duty_cycle_local <= 0) duty_cycle_local = 0;
@@ -432,17 +425,19 @@ void DisplayTUI() {
     wrefresh(win_feedback);
     wrefresh(win_toggle);
     key = getch();
-    while (getch() != ERR)
-      ;  // clear buffer
+
+    // clear buffer
+    while (getch() != ERR) {
+    }
+
     phase_shift += 1.0;
     if (phase_shift * period_local >= (float)win_wave_plot_width * 25) {
-      phase_shift = 0.0;
+      phase_shift = 0.0;  // resets phase_shift variable
     }
     usleep(time_period_ms * BASE_DELAY);
   }
 
   endwin(); /* End curses mode */
-#endif
 }
 
 void DrawAxes(WINDOW* win, int win_wave_plot_height, int win_wave_plot_width,
@@ -677,10 +672,10 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   float period;
   frequency /= 60;
   period = 1 / frequency;
-  #if PCIe
+#if PCIe
   amplitude /= 4;
   vert_offset /= 4;
-  #endif
+#endif
   wattron(win, A_BOLD);
   //   wattron(win, A_STANDOUT);
   wattron(win, COLOR_PAIR(MAIN_TEXT_COLOUR));
