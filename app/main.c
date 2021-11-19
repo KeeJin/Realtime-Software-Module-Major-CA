@@ -1,4 +1,4 @@
-#define HARDWARE
+
 #ifndef HARDWARE  // Runs program without hardware
 #include "terminal_ui.h"
 #include <stdlib.h>
