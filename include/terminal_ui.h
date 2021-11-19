@@ -7,9 +7,9 @@
 #define BASE_DELAY 1000
 #define MAIN_TEXT_COLOUR 6
 
-/* ------------------------------- Functions ---------------------------------- */
+/* ----------------------------- Functions -------------------------------- */
 // Main TUI drawing loop
-void DisplayTUI();  
+void DisplayTUI();
 
 // Function responsible for general TUI layout and design
 void WindowDesign(WINDOW* win_wave_plot, WINDOW* win_description,
@@ -28,6 +28,6 @@ void DisplayInactivePlot(WINDOW* win, int win_width, int win_height);
 // Function responsible for updating wave statistics
 void UpdateStats(WINDOW* win, float amplitude, float frequency,
                  float vert_offset, int duty_cycle, WaveType wave_type);
-/* ---------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #endif /* TERMINAL_UI */

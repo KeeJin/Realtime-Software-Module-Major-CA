@@ -3,7 +3,9 @@
 
 #include "common.h"
 
-
-void *waveform_thread(void *arg);
+/* ----------------------------- Functions -------------------------------- */
+void *waveform_thread(void *arg);  // Thread function for generating waveforms
+                                   // for output to oscilloscope
+/* ------------------------------------------------------------------------ */
 
 #endif /* WAVEFORM */
