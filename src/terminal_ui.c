@@ -679,7 +679,7 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   period = 1 / frequency;
   #if PCIe
   amplitude /= 4;
-  vertical_offset /= 4;
+  vert_offset /= 4;
   #endif
   wattron(win, A_BOLD);
   //   wattron(win, A_STANDOUT);
@@ -701,7 +701,7 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   mvwprintw(win, 2, 17, "%.2f ", amplitude);
   mvwprintw(win, 3, 17, "%.2f ", frequency);
   mvwprintw(win, 4, 17, "%.2f ", period);
-  mvwprintw(win, 5, 17, "%.2f ", vertical_offset);
+  mvwprintw(win, 5, 17, "%.2f ", vert_offset);
 
   if (wave_type == SQUARE)
     mvwprintw(win, 6, 17, "%d ", duty_cycle);
