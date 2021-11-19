@@ -1,5 +1,3 @@
-//headerfile for PCI_init.c
-
 #ifndef __PCI_INIT_H
 #define __PCI_INIT_H
 
