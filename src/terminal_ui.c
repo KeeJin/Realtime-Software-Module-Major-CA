@@ -60,6 +60,7 @@ void DisplayTUI() {
   wave_types_toggle[2] = "TRIANGULAR";
   wave_types_toggle[3] = "SAW TOOTH";
 
+  // Get current window dimensions
   getmaxyx(stdscr, cached_y_max, cached_x_max);
   x_padding = 1;
   y_padding = 1;
@@ -103,8 +104,8 @@ void DisplayTUI() {
         y_padding + win_wave_plot_height + win_panel_height * 1 / 3,
         x_padding + win_panel_width);
 
-  win_toggle = newwin(win_panel_height * 1 / 3, right_panel_width,
-                      y_padding, x_padding);
+  win_toggle =
+      newwin(win_panel_height * 1 / 3, right_panel_width, y_padding, x_padding);
 
   mvwin(win_toggle, y_padding + win_wave_plot_height,
         x_padding + win_panel_width);
@@ -191,8 +192,7 @@ void DisplayTUI() {
     if (switch2_value(dio_switch_local)) {
       if ((vertical_offset_local == prev_vert_offset) ||
           (wave_type_local == prev_wave_type) ||
-          duty_cycle_local == prev_duty_cycle)
-      {
+          duty_cycle_local == prev_duty_cycle) {
         prev_live = 1;
         pthread_mutex_lock(&mutex_common);
         vertical_offset = current_vert_offset;
@@ -222,6 +222,7 @@ void DisplayTUI() {
                   vertical_offset_local, duty_cycle_local, wave_type_local);
       switch (key) {
         case KEY_RESIZE:
+          // Get current window dimensions
           getmaxyx(stdscr, y_max, x_max);
 
           // Check if window size has change - if yes, recalculate
@@ -424,10 +425,14 @@ void DisplayTUI() {
     wrefresh(win_feedback);
     wrefresh(win_toggle);
     key = getch();
-    while (getch() != ERR) {}  // clear buffer
+
+    // clear buffer
+    while (getch() != ERR) {
+    }
+
     phase_shift += 1.0;
     if (phase_shift * period_local >= (float)win_wave_plot_width * 25) {
-      phase_shift = 0.0;
+      phase_shift = 0.0;  // resets phase_shift variable
     }
     usleep(time_period_ms * BASE_DELAY);
   }
@@ -667,10 +672,10 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   float period;
   frequency /= 60;
   period = 1 / frequency;
-  #if PCIe
+#if PCIe
   amplitude /= 4;
   vert_offset /= 4;
-  #endif
+#endif
   wattron(win, A_BOLD);
   //   wattron(win, A_STANDOUT);
   wattron(win, COLOR_PAIR(MAIN_TEXT_COLOUR));
