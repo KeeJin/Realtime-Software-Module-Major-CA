@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
       printf("\n*******************************************************\n");
       printf("ERROR: Invalid command line argument\n");
       printf("Command line argument should be:\n");
-      printf("./main t:wave_type v:vert_offset\n");
+      printf("./main t:wave_type v:vert_offset d:duty_cycle\n");
       printf("*******************************************************\n");
       return 0;  // invalid, exit program
     }
@@ -241,11 +241,31 @@ int main(int argc, char* argv[]) {
         current_wave_type = wave_type;
         break;
 
+      case ('d'):
+        if (sscanf(argument_value, "%d", &duty_cycle) !=
+            1)  // parse wave type and check whether it is of correct data type
+        {
+          printf("\n*******************************************************\n");
+          printf("ERR: duty cycle must be INT (0 - 100)\n");
+          printf("*******************************************************\n");
+          return 0;  // invalid, exit program
+        } else if ( (duty_cycle < 0) || (duty_cycle > 100) )
+                    // check if wave type value is valid
+        {
+          printf("\n*******************************************************\n");
+          printf("ERR: Invalid duty cycle!\n");
+          printf("Duty cycle must be between 0%% to 100%%\n");
+          printf("*******************************************************\n");
+          return 0;  // invalid, exit program
+        }
+        current_duty_cycle = duty_cycle;
+        break;
+
       default:  // invalid
         printf("\n*******************************************************\n");
         printf("ERR: Invalid command line argument\n");
         printf("Command line argument should be as:\n");
-        printf("./main t:wave_type v:vert_offset\n");
+        printf("./main t:wave_type v:vert_offset d:duty_cycle\n");
         printf("*******************************************************\n");
         return 0;  // invalid, exit program
         break;

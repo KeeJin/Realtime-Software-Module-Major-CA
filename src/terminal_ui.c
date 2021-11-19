@@ -394,6 +394,7 @@ void DisplayTUI() {
 
       wave_types_toggle_index = prev_wave_type;
       wave_type_local = prev_wave_type;
+      duty_cycle_local = prev_duty_cycle;
       wclear(win_wave_plot);
       wclear(win_toggle);
       DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
