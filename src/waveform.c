@@ -1,4 +1,3 @@
-// waveform.c --> waveform functions are here
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

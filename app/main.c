@@ -1,5 +1,5 @@
-// main.c --> command line arguments: wavetype and vertical offset
-#ifndef HARDWARE
+
+#ifndef HARDWARE  // Runs program without hardware
 #include "terminal_ui.h"
 #include <stdlib.h>
 
@@ -12,6 +12,7 @@ int main(void) {
   long t;
   void* status;
 
+  // Predefine some globals
   prev_wave_type = SINE;
   current_wave_type = SINE;
   prev_vert_offset = 0.0;
@@ -33,7 +34,7 @@ int main(void) {
   return 0;
 }
 
-#else
+#else  // Run program with hardware
 
 #include <stdio.h>
 #include <string.h>
@@ -56,21 +57,19 @@ pthread_mutex_t mutex_common;
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
 
-// variable for file logging
-// variables for finding the duration that the program runs
 
-void signal_handler(int signum)  // Ctrl+c handler
-{
+// SIGINT handler
+void signal_handler(int signum) {
   int rc;
   void* status;
 
   system("clear");
-  if (current_period == 0) {
-    current_amplitude = prev_amplitude;
+  if (current_period == 0) { //Handles the case where no "live" imput was fed.
+    current_amplitude = prev_amplitude; //saves the previous savefile.txt values
     current_period = prev_period;
     current_duty_cycle = prev_duty_cycle;
   }
-  fp = fopen("savefile.txt", "w");
+  fp = fopen("savefile.txt", "w"); //save to file
   fprintf(fp, "%d\n%f\n%f\n%f\n%d\n", current_wave_type, current_amplitude,
           current_period, current_vert_offset, current_duty_cycle);
   fclose(fp);
@@ -121,26 +120,25 @@ int main(int argc, char* argv[]) {
   current_duty_cycle = 50;
   period = 50.0;
 
-  fp = fopen("savefile.txt", "r");
-  if (fp) {
+  fp = fopen("savefile.txt", "r"); //Read from file
+  if (fp) { //Checks if savefile.txt exists
     fscanf(fp, "%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period,
            &prev_vert_offset, &prev_duty_cycle);
+    //Handles the case of a corrupted savefile.txt 
     if ((prev_wave_type != 1 && prev_wave_type != 2 && prev_wave_type != 3 &&
-                   prev_wave_type != 0)
-    || ( (prev_amplitude < 0) || (prev_amplitude > 5) ) 
-    || ( (prev_period < 25) || (prev_period > 50) )    
-    || ( (prev_vert_offset < -5) || (prev_vert_offset > 5) ) 
-    || ( prev_duty_cycle < 0) || (prev_duty_cycle > 100) )
-    {
-	    prev_wave_type = 0;
-	    prev_amplitude = 5.0;
-	    prev_period = 50.0;
-	    prev_vert_offset = 0.0;
-	    prev_duty_cycle = 50;
+         prev_wave_type != 0) ||
+        ((prev_amplitude < 0) || (prev_amplitude > 5)) ||
+        ((prev_period < 25) || (prev_period > 50)) ||
+        ((prev_vert_offset < -5) || (prev_vert_offset > 5)) ||
+        (prev_duty_cycle < 0) || (prev_duty_cycle > 100)) {
+      prev_wave_type = 0;
+      prev_amplitude = 5.0;
+      prev_period = 50.0;
+      prev_vert_offset = 0.0;
+      prev_duty_cycle = 50; //Sets default values
     }
 
-  }
-  else {
+  } else {
     prev_wave_type = SINE;
     prev_amplitude = 5.0;
     prev_period = 50.0;
@@ -169,31 +167,30 @@ int main(int argc, char* argv[]) {
     switch (argument) {
       case ('v'):  // parse average/mean value and check whether it is of
                    // correct data type
-        #if PCIe
+#if PCIe
         if (sscanf(argument_value, "%f", &vertical_offset) != 1) {
           printf("\n*******************************************************\n");
           printf("ERR: Vertical offset must be FLOAT,\n");
-          printf("and must be between %.2f and %.2f\n", LOWER_LIMIT_VOLTAGE/4,
-                 UPPER_LIMIT_VOLTAGE/4);
+          printf("and must be between %.2f and %.2f\n", LOWER_LIMIT_VOLTAGE / 4,
+                 UPPER_LIMIT_VOLTAGE / 4);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
-        } 
-        else if (vertical_offset < LOWER_LIMIT_VOLTAGE/4 ||
-                   vertical_offset >
-                       UPPER_LIMIT_VOLTAGE/4)  // check if average is in valid
+        } else if (vertical_offset < LOWER_LIMIT_VOLTAGE / 4 ||
+                   vertical_offset > UPPER_LIMIT_VOLTAGE /
+                                         4)  // check if average is in valid
                                              // range (-1.25 to 1.25) for PCIe
         {
           printf("\n*******************************************************\n");
           printf("ERR: Invalid vertical offset!\n");
           printf("Vertical offset must be between %.2f and %.2f\n",
-                 LOWER_LIMIT_VOLTAGE/4, UPPER_LIMIT_VOLTAGE/4);
+                 LOWER_LIMIT_VOLTAGE / 4, UPPER_LIMIT_VOLTAGE / 4);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         }
-        current_vert_offset = vertical_offset*4;
+        current_vert_offset = vertical_offset * 4;
         vertical_offset *= 4;
         break;
-        #else
+#else
         if (sscanf(argument_value, "%f", &vertical_offset) != 1) {
           printf("\n*******************************************************\n");
           printf("ERR: Vertical offset must be FLOAT,\n");
@@ -201,8 +198,7 @@ int main(int argc, char* argv[]) {
                  UPPER_LIMIT_VOLTAGE);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
-        } 
-        else if (vertical_offset < LOWER_LIMIT_VOLTAGE ||
+        } else if (vertical_offset < LOWER_LIMIT_VOLTAGE ||
                    vertical_offset >
                        UPPER_LIMIT_VOLTAGE)  // check if average is in valid
                                              // range (-5 to 5) for PCI
@@ -216,7 +212,7 @@ int main(int argc, char* argv[]) {
         }
         current_vert_offset = vertical_offset;
         break;
-        #endif
+#endif
 
       case ('t'):
         if (sscanf(argument_value, "%d", &wave_type) !=
@@ -249,8 +245,8 @@ int main(int argc, char* argv[]) {
           printf("ERR: duty cycle must be INT (0 - 100)\n");
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
-        } else if ( (duty_cycle < 0) || (duty_cycle > 100) )
-                    // check if wave type value is valid
+        } else if ((duty_cycle < 0) || (duty_cycle > 100))
+        // check if wave type value is valid
         {
           printf("\n*******************************************************\n");
           printf("ERR: Invalid duty cycle!\n");
@@ -313,6 +309,7 @@ int main(int argc, char* argv[]) {
 
   DisplayTUI();
 
+  // Call SIGINT handler function for cleanup of thread resources
   signal_handler(0);
 
   return 0;
