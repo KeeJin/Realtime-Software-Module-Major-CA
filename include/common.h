@@ -19,6 +19,8 @@ typedef enum _waveType {
 
 /* ----------------------------- Global params --------------------------------
  */
+//Variables for wave parameters. These variables will be accessed by all the
+//threads. Mutex lock is used for these variables.
 WaveType wave_type;
 float amplitude;
 float period;
@@ -27,12 +29,16 @@ int time_period_ms;
 int duty_cycle;
 extern pthread_mutex_t mutex_common;
 
+//Variables used to store current wave parameters. These variables is used to
+//allow the wave to revert back to the last "live" parameters
 WaveType current_wave_type;
 float current_amplitude;
 float current_period;
 float current_vert_offset;
 int current_duty_cycle;
 
+//Variables used to store the wave parameters from the PREVIOUS run, extracted
+//from the "savefile.txt" 
 WaveType prev_wave_type;
 float prev_amplitude;
 float prev_period;
