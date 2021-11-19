@@ -5,6 +5,7 @@
 #include "PCI_init.h"
 
 #else
+#define PCIe 0
 int switch0_value(unsigned int dio_switch) { return 1; }
 int switch1_value(unsigned int dio_switch) { return 1; }
 int switch2_value(unsigned int dio_switch) { return 1; }
@@ -676,7 +677,7 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   float period;
   frequency /= 60;
   period = 1 / frequency;
-  #ifdef PCIe
+  #if PCIe
   amplitude /= 4;
   vertical_offset /= 4;
   #endif

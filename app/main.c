@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
     switch (argument) {
       case ('v'):  // parse average/mean value and check whether it is of
                    // correct data type
-        #ifdef PCIe
+        #if PCIe
         if (sscanf(argument_value, "%f", &vertical_offset) != 1) {
           printf("\n*******************************************************\n");
           printf("ERR: Vertical offset must be FLOAT,\n");
