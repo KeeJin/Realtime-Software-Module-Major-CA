@@ -1,5 +1,4 @@
-// main.c --> command line arguments: wavetype, duty cycle and vertical offset
-
+#define HARDWARE
 #ifndef HARDWARE  // Runs program without hardware
 #include "terminal_ui.h"
 #include <stdlib.h>
@@ -58,8 +57,6 @@ pthread_mutex_t mutex_common;
 pthread_t hardware_input_thread_ID;
 pthread_t waveform_thread_ID;
 
-// variable for file logging
-// variables for finding the duration that the program runs
 
 // SIGINT handler
 void signal_handler(int signum) {
@@ -67,12 +64,12 @@ void signal_handler(int signum) {
   void* status;
 
   system("clear");
-  if (current_period == 0) {
-    current_amplitude = prev_amplitude;
+  if (current_period == 0) { //Handles the case where no "live" imput was fed.
+    current_amplitude = prev_amplitude; //saves the previous savefile.txt values
     current_period = prev_period;
     current_duty_cycle = prev_duty_cycle;
   }
-  fp = fopen("savefile.txt", "w");
+  fp = fopen("savefile.txt", "w"); //save to file
   fprintf(fp, "%d\n%f\n%f\n%f\n%d\n", current_wave_type, current_amplitude,
           current_period, current_vert_offset, current_duty_cycle);
   fclose(fp);
@@ -123,10 +120,11 @@ int main(int argc, char* argv[]) {
   current_duty_cycle = 50;
   period = 50.0;
 
-  fp = fopen("savefile.txt", "r");
-  if (fp) {
+  fp = fopen("savefile.txt", "r"); //Read from file
+  if (fp) { //Checks if savefile.txt exists
     fscanf(fp, "%d %f %f %f %d", &prev_wave_type, &prev_amplitude, &prev_period,
            &prev_vert_offset, &prev_duty_cycle);
+    //Handles the case of a corrupted savefile.txt 
     if ((prev_wave_type != 1 && prev_wave_type != 2 && prev_wave_type != 3 &&
          prev_wave_type != 0) ||
         ((prev_amplitude < 0) || (prev_amplitude > 5)) ||
@@ -137,7 +135,7 @@ int main(int argc, char* argv[]) {
       prev_amplitude = 5.0;
       prev_period = 50.0;
       prev_vert_offset = 0.0;
-      prev_duty_cycle = 50;
+      prev_duty_cycle = 50; //Sets default values
     }
 
   } else {

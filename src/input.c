@@ -1,5 +1,3 @@
-// input.c --> changing wave parameter using hardware and arrowkey inputs
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,7 +25,6 @@ int pot_res = 32768;
 int pot_res = 65536;
 #endif
 
-// int pot_res = 32768;
 
 void read_potentiometer(
     uint16_t *readpotentiometer1,
@@ -136,14 +133,12 @@ void *hardware_input_thread(
       period_local = prev_period;
     }
 
-    //        delay(1000);
-    // read SWITCH
 #if PCI
-    dio_switch_local = in8(DIO_PORTA);  // FLAGGED!
+    dio_switch_local = in8(DIO_PORTA);
 #endif
 
 #if PCIe
-    dio_switch_local = in8(DIO_Data);  // FLAGGED!
+    dio_switch_local = in8(DIO_Data);
 #endif
 
     pthread_mutex_lock(&mutex_common);
@@ -151,56 +146,4 @@ void *hardware_input_thread(
     period = period_local;
     dio_switch = dio_switch_local;
     pthread_mutex_unlock(&mutex_common);
-
-    /*if (switch0_value(dio_switch_local)!=prev_switch0) //kill
-{
-pthread_cancel(DisplayTUI_ID);
-endwin();
-system("clear");
-printf("Ending program...\n");
-printf("Resetting hardware...\n");
-fp = fopen("savefile.txt","w");
-if(current_period == 0)
-{
-    current_wave_type = prev_wave_type;
-    current_amplitude = prev_amplitude;
-    current_period = prev_period;
-    current_vert_offset = prev_vert_offset;
-}
-fprintf(fp,"%d\n%f\n%f\n%f\n%d\n",current_wave_type,current_amplitude,current_period,current_vert_offset,duty_cycle);
-fclose(fp);
-pci_detach_device(hdl);
-
-pthread_mutex_lock(&mutex_wave_type);
-wave_type = ZERO;
-pthread_mutex_unlock(&mutex_wave_type);
-
-delay(period_local);
-pthread_cancel(waveform_thread_ID);
-#if PCI
-out8(DIO_PORTB,0);
-#endif
-#if PCIe
-out8(DIO_Data,0);
-#endif
-
-//get the time when the program stops
-if(clock_gettime(CLOCK_REALTIME,&stop)==-1)
-{
-    printf("clock gettime stop error");
-}
-
-//compute duration that program has run
-time_elapsed=(double)(stop.tv_sec-start.tv_sec)+ (double)(stop.tv_nsec-
-start.tv_nsec)/1000000000;
-
-///create/open log.txt for logging & log exit message and duration that the
-program has run fp = fopen("log.txt","a"); fprintf(fp,"Ending program \n");
-fprintf(fp,"Program runs for %lf seconds \n\n",time_elapsed);
-fclose(fp);
-
-exit(EXIT_SUCCESS);                                 //exit the program
-
-    }   */
-  }
 }
