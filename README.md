@@ -7,7 +7,7 @@
 
 #### 1. Go to path /include
 
-#### 2. In file PCI_init.h (line 15), choose PCI board type.   
+#### 2. In file PCI_init.h (line 13), choose PCI board type.   
     
 #### ``` #define PCIe		0		// 0: PCI 1: PCIe ```
 
