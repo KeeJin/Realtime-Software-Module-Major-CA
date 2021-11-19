@@ -15,11 +15,11 @@
 
 - ### QNX 
 	- Without hardware    
-	``` ./build_main.sh ```    
+	``` sh build_main.sh ```    
 	- With hardware    
-	``` ./build_main.sh -DHARDWARE ```
+	``` sh build_main.sh -DHARDWARE ```
 	- With hardware + command line arguments    
-	``` ./build_main.sh -DHARDWARE t:1 v:3 ```
+	``` sh build_main.sh -DHARDWARE t:1 v:3 d:75```
    
  
 - ### Ubuntu, without hardware
