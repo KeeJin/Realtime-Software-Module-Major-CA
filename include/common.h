@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 
+// Global constants defined as macros
 #define LOWER_LIMIT_VOLTAGE -5.0f
 #define UPPER_LIMIT_VOLTAGE 5.0f
 #define VERT_OFFSET_INCREMENT 0.1f
