@@ -169,27 +169,54 @@ int main(int argc, char* argv[]) {
     switch (argument) {
       case ('v'):  // parse average/mean value and check whether it is of
                    // correct data type
+        #ifdef PCIe
         if (sscanf(argument_value, "%f", &vertical_offset) != 1) {
           printf("\n*******************************************************\n");
           printf("ERR: Vertical offset must be FLOAT,\n");
-          printf("and must be between %.0f and %.0f\n", LOWER_LIMIT_VOLTAGE,
-                 UPPER_LIMIT_VOLTAGE);
+          printf("and must be between %.2f and %.2f\n", LOWER_LIMIT_VOLTAGE/4,
+                 UPPER_LIMIT_VOLTAGE/4);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
-        } else if (vertical_offset < LOWER_LIMIT_VOLTAGE ||
+        } 
+        else if (vertical_offset < LOWER_LIMIT_VOLTAGE/4 ||
                    vertical_offset >
-                       UPPER_LIMIT_VOLTAGE)  // check if average is in valid
-                                             // range (-5 to 5)
+                       UPPER_LIMIT_VOLTAGE/4)  // check if average is in valid
+                                             // range (-1.25 to 1.25) for PCIe
         {
           printf("\n*******************************************************\n");
           printf("ERR: Invalid vertical offset!\n");
-          printf("Vertical offset must be between %.0f and %.0f\n",
+          printf("Vertical offset must be between %.2f and %.2f\n",
+                 LOWER_LIMIT_VOLTAGE/4, UPPER_LIMIT_VOLTAGE/4);
+          printf("*******************************************************\n");
+          return 0;  // invalid, exit program
+        }
+        current_vert_offset = vertical_offset*4;
+        vertical_offset *= 4;
+        break;
+        #else
+        if (sscanf(argument_value, "%f", &vertical_offset) != 1) {
+          printf("\n*******************************************************\n");
+          printf("ERR: Vertical offset must be FLOAT,\n");
+          printf("and must be between %.2f and %.2f\n", LOWER_LIMIT_VOLTAGE,
+                 UPPER_LIMIT_VOLTAGE);
+          printf("*******************************************************\n");
+          return 0;  // invalid, exit program
+        } 
+        else if (vertical_offset < LOWER_LIMIT_VOLTAGE ||
+                   vertical_offset >
+                       UPPER_LIMIT_VOLTAGE)  // check if average is in valid
+                                             // range (-5 to 5) for PCI
+        {
+          printf("\n*******************************************************\n");
+          printf("ERR: Invalid vertical offset!\n");
+          printf("Vertical offset must be between %.2f and %.2f\n",
                  LOWER_LIMIT_VOLTAGE, UPPER_LIMIT_VOLTAGE);
           printf("*******************************************************\n");
           return 0;  // invalid, exit program
         }
         current_vert_offset = vertical_offset;
         break;
+        #endif
 
       case ('t'):
         if (sscanf(argument_value, "%d", &wave_type) !=

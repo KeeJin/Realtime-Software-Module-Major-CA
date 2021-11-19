@@ -390,8 +390,10 @@ void DisplayTUI() {
       vertical_offset = prev_vert_offset;
       wave_type = prev_wave_type;
       duty_cycle = prev_duty_cycle;
+      pthread_mutex_unlock(&mutex_common);
 
       wave_types_toggle_index = prev_wave_type;
+      wave_type_local = prev_wave_type;
       wclear(win_wave_plot);
       wclear(win_toggle);
       DrawAxes(win_wave_plot, win_wave_plot_height, win_wave_plot_width,
@@ -673,6 +675,10 @@ void UpdateStats(WINDOW* win, float amplitude, float frequency,
   float period;
   frequency /= 60;
   period = 1 / frequency;
+  #ifdef PCIe
+  amplitude /= 4;
+  vertical_offset /= 4;
+  #endif
   wattron(win, A_BOLD);
   //   wattron(win, A_STANDOUT);
   wattron(win, COLOR_PAIR(MAIN_TEXT_COLOUR));
