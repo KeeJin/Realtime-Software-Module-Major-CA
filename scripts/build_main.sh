@@ -13,7 +13,7 @@ cc -I ../include/ -c ../src/input.c
 cc -I ../include/ -c ../src/PCI_init.c
 cc -I ../include/ -c ../src/waveform.c
 cc $1 -I ../include/ input.o PCI_init.o waveform.o terminal_ui.o -o bin/main ../app/main.c -lncurses -lm
-./bin/main $2 $3
+./bin/main $2 $3 $4
 else
 echo "Compiling without Hardware."
 cc -I ../include/ -c ../src/terminal_ui.c
