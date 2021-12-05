@@ -1,5 +1,8 @@
 # Realtime-Software-Module-Major-CA
 
+## Program Logical flow
+<img src="./res/program_overview.png">
+
 ## Pre-requisites
 - ncurses on C
 
